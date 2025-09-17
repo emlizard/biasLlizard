@@ -46,205 +46,269 @@
         
         <div class="section">
             <h2 class="section-title">Step 1: Paste Raw Data</h2>
-            <textarea id="rawInput" class="data-input" placeholder="이곳에 데이터를 붙여넣으세요.
-L_initial 행을 포함해야 합니다.
+            <textarea id="rawInput" class="data-input">
+BLOCK: 6x15x5, N: 27
+Idc(A)	211	212
+0	56.8	51.6
+10	54	49
+20	48.8	43.8
+30	42.8	38
+40	36.5	32.8
+50	31.5	28.5
+60	27.5	25
+70	24.5	22
+L_initial	57.3	52.0
 
-BLOCK: CLC_6x15x5R2, N: 27												
-Idc(A)	104	105	106	107	108							
-0	53.6	54	50.9	53.8	55.4							
-10	50.5	50.9	49.1	52	53.2							
-15	47.7	46.7	45.6	48	49							
-19	45.4	43.3	42.9	44.7	45.5							
-L_initial	54.1	54.5	51.6	54.1	56.1							
-												
-BLOCK: CLC_6x15x5.5R2, N: 27												
-Idc(A)	104	105	106	107	108							
-0	60	60.3	56.8	58.9	62.2							
-10	55.8	54.4	52.4	55.1	57							
-15	51.1	49.4	48	50.7	51.7							
-19	47.1	45.5	44.6	46.9	47.6							
-L_initial	60.6	61.4	57.1	60	62.7							
-												
-BLOCK: CLC_6x15x5R2, N: 30												
-Idc(A)	104	105	106	107	108							
-0	68.8	69.4	64.9	69.1	70.2							
-10	63.4	62.2	60.7	63.3	64.2							
-15	58.7	56.8	55.5	58.4	59.3							
-19	55.2	52.9	51.5	54.5	55.4							
-L_initial	69.4	70	65.8	69.8	71							
-												
-BLOCK: CLC_6x15x5.5R2, N: 30												
-Idc(A)	104	105	106	107	108							
-0	76.6	78.2	72.8	76.6	79							
-10	68.6	67.3	64.9	68.7	70.2							
-15	61.8	59.7	58.4	61.6	62.5							
-19	56	54.4	53.5	55.6	56.1							
-L_initial	77.4	79.4	73.6	77.8	80							
-												
-BLOCK: CLC_6x15x5R2, N: 31												
-Idc(A)	104	105	106	107	108							
-0	74.3	74.5	69.3	74.1	76.2							
-10	68	66.4	64.7	67.4	69.2							
-15	62.7	60.3	58.9	61.8	53.3							
-19	58.6	55.9	54.7	57.5	58.9							
-L_initial	75.2	75.4	71	75	77.2							
-												
-BLOCK: CLC_6x15x5.5R2, N: 31												
-Idc(A)	104	105	106	107	108							
-0	82.1	83.6	76.8	82.1	84.6							
-10	73.2	71.6	68.8	73.3	74.9							
-15	66	62.8	61.4	64.8	65.9							
-19	60.6	56.9	56.1	57.9	58.8							
-L_initial	83.4	84.8	78.5	83.2	86.5							
-												
-BLOCK: CLC_8x15x5.5R2, N: 24												
-Idc(A)	104	105	106	107	108							
-0	55.7	57.2	52.7	55.8	57.6							
-10	51.1	50.4	48.2	51.3	52.5							
-15	47	45.3	44	46.7	47.6							
-19	43.8	41.7	40.8	43.2	43.8							
-L_initial	56.1	57.4	53.2	56.2	58.1							
-												
-BLOCK: CLC_8x15x5.5R2, N: 29												
-Idc(A)	104	105	106	107	108							
-0	75.4	77.1	70.5	75.6	78.3							
-10	67.9	65.9	63.2	67.4	69.1							
-15	60.7	58	56.6	59.7	61.1							
-19	55.5	52.8	51.9	54.7	55.3							
-L_initial	76.3	77.9	72.3	76.2	79.6							
-												
-BLOCK: CLC_8x15x5.5R2, N: 30												
-Idc(A)	104	105	106	107	108							
-0	80.5	81.9	76.6	80.5	84.4							
-10	71.4	69.7	67.4	71.6	73.3							
-15	64.2	61.3	60	63.5	64.7							
-19	59.1	55.8	54.8	57.7	58.7							
-L_initial	81.6	83.7	77.3	82.2	85.3							
-												
-BLOCK: CLC_6x15x2.5R2, N: 31												
-Idc(A)	100	101	102	103								
-0	76.1	83.2	77.4	74								
-10	68.8	75.1	72.4	66.9								
-15	62.7	68.7	64.4	61.4								
-17	60.5	66.4	61.7	59.5								
-19	57	60	54	53								
-L_initial	77.4	84.2	78.8	74.7								
-												
-BLOCK: CLC_6x15x3R2, N: 31												
-Idc(A)	100	101	102	103								
-0	80.2	90	84.6	79								
-10	71.5	80.2	75.5	70.6								
-15	64.5	72.3	66.9	64.2								
-17	62	69.4	63.7	61.9								
-19	55.4	64	55.1	57								
-L_initial	81.2	92.7	85.5	80.1								
-												
-BLOCK: CLC_No, N: 31												
-Idc(A)	100	101	102	103								
-0	63.2	68	64.8	62.7								
-10	59	63.9	60.3	58.5								
-15	55.7	60.5	56.8	55.1								
-17	54.4	59.3	55.4	54								
-19	51	54	50	49								
-L_initial	64.5	69.2	66	63.7								
-												
-BLOCK: 6x15x3R2, N: 30												
-Idc(A)	114											
-0	106.6											
-10	94											
-15	85.6											
-19	79											
-L_initial	108.7											
-												
-BLOCK: CLC_8x15x2.5R2, N: 29												
-Idc(A)	109	110	111	112	114	116	117	118	121	122	123	124
-0	72.8	79.3	66	67.3	97.2	98.8	97.8	96	75.7	64.1	74.7	63.6
-10	65.1	71.9	61.5	62.6	86.9	86.1	86.6	84.6	70.3	36.8	46.9	37.6
-15	59.5	66.8	58	59.7	80.1	76.7	79.4	77.1	65.9	32.1	39.9	32.6
-19	55.7	63.4	55.4	55.9	75.3	69.3	74.2	71.5	61.3	30.1	36.3	30.4
-L_initial	73.6	80.3	66.7	68.7	98.7	100.3	99.4	97.5	76.2	64.7	75.6	64.1
-												
-BLOCK: CLC_8x15x2.9, N: 29												
-Idc(A)	109	110	111	112	114	116	117	118				
-0	77.6	87.5	70.9	71.4	108.2	108.4	106.7	105.3				
-10	69.7	77.4	65.4	65.7	94	91.9	93.2	91				
-15	62	70.7	61	61	84.4	79.8	83.7	81.2				
-19	56.8	66.1	57.5	57.5	77.1	70.2	76	73.8				
-L_initial	78.6	88.6	72.3	72.9	110	110.4	108.6	107				
-												
-BLOCK: CLC_No, N: 29												
-Idc(A)	109	110	111	112	113	114	116	117	118			
-0	57.9	62.8	53.4	54.8	39.1	69.9	70.9	70.4	69.2			
-10	54.1	59.2	51.5	52.2	37.1	66.1	66.2	66.4	64.9			
-15	51	56.4	49.7	50.2	35.3	63.4	62.7	63.4	61.8			
-19	48.7	54.5	48.2	48.6	33.9	61.6	59.9	61.3	59.7			
-L_initial	58.4	63.5	54.2	55.6	39.4	70.6	71.7	71.3	70.1			
-												
-BLOCK: CLC_8x15x2.5R2, N:30(wide)												
-Idc(A)	111	112	121									
-0	90.1	93.1	90.7									
-10	81.2	82.6	83.2									
-15	74.2	74.8	77.4									
-19	64	65	67									
-L_initial	92.4	95.4	92									
-												
-BLOCK: CLC_No, N: 30												
-Idc(A)	111	112										
-0	77.1	80.3										
-10	71.3	72.9										
-15	66.5	66.8										
-19	60	58										
-L_initial	79.1	81.4										
-												
-BLOCK: CLC_10x15x3R2, N: 24												
-Idc(A)	110	114	116	117	118							
-0	65	84.5	85.7	84	82.5							
-10	61	77.9	74.3	74.8	72.8							
-15	56.1	69.8	65.8	68.4	66.1							
-19	52.7	65.1	58.9	63.6	61.1							
-L_initial	65.5	85.8	87.1	85.1	83.8							
-												
-BLOCK: CLC_10x15x2.5, N: 24												
-Idc(A)	110	114	116	117	118							
-0	59.8	74.9	75.5	74.4	73.3							
-10	57.8	69.1	68.1	68.2	66.7							
-15	53.4	64.6	62.1	63.6	61.8							
-19	50.2	61.1	57	59.9	57.9							
-L_initial	60.3	75.8	76.3	75.3	74.1							
-												
-BLOCK: CLC_No, N: 24												
-Idc(A)	110	114	116	117	118							
-0	46.1	53.2	53.4	52.9	52.1							
-10	44.1	50.9	50.7	50.5	49.6							
-15	42.5	49.2	48.6	48.7	47.7							
-19	41.2	47.9	46.9	47.4	46.2							
-L_initial	46.4	53.6	54	53.4	52.6							
-												
-BLOCK: CLC_NCR50p_8x15x4, N: 29												
-Idc(A)	114											
-0	93.1											
-10	84.3											
-15	78.3											
-19	74.2											
-L_initial	94.6											
-												
-BLOCK: CLC_6x15x2.5R2, N: 28												
-Idc(A)	110	114	116	117	118	103						
-0	61.3	76.1	76.4	75.8	74.7	56.8						
-10	57.4	70.8	72.4	70	68.7	53.1						
-15	54.5	66.8	62.6	65.8	64.3	50						
-19	52.4	63.8	56.2	62.6	61	47.5						
-L_initial	61.8	77.2	77.6	76.7	75.9	57.3						
-												
-BLOCK: CLC_6x15x3R2, N: 28												
-Idc(A)	110	114	116	117	118	121	122	123	124			
-0	67.6	87.2	87.1	85.9	84.5	66.7	55.7	65.4	55.8			
-10	62	78.3	77	77	75.8	62.4	32.6	41.5	33.5			
-15	58.1	72.4	69.2	70.9	69.4	59	28.5	35.6	28.9			
-19	55.4	67.9	62.8	66.4	64.6	54.6	26.5	32.5	26.8			
-L_initial	68	88.2	88.6	87.2	86.3	67.4	56.5	66.1	56.7			
+BLOCK: 6x15x5, N: 26
+Idc(A)	211	212
+0	52.4	47.6
+10	49.8	45.2
+20	45	40.5
+30	39.5	35.5
+40	34	30.8
+50	29.5	26.8
+60	26	23.5
+70	23	21
+L_initial	52.8	48.0
 
-"></textarea>
+BLOCK: 6x15x5, N: 25
+Idc(A)	211	212
+0	48.4	44
+10	46	41.8
+20	41.5	37.5
+30	36.5	33
+40	31.5	28.8
+50	27.5	25.2
+60	24.5	22.5
+L_initial	48.7	44.3
+
+BLOCK: 6x15x5, N: 24
+Idc(A)	211	212
+0	44.6	40.5
+10	42.5	38.5
+20	38.5	34.8
+30	34	30.8
+40	29.5	26.8
+50	26	23.8
+60	23	21.2
+L_initial	44.9	40.8
+
+BLOCK: 6x15x5, N: 23
+Idc(A)	211	212
+0	41.1	37.2
+10	39	35.2
+20	35.5	32
+30	31.2	28
+40	27.2	24.5
+50	24	21.8
+L_initial	41.3	37.5
+
+BLOCK: 6x15x5, N: 22
+Idc(A)	211	212
+0	37.8	34.2
+10	36	32.5
+20	32.5	29.2
+30	28.8	25.8
+40	25.2	22.8
+50	22.2	20.2
+L_initial	38.0	34.5
+
+BLOCK: 6x15x5, N: 21
+Idc(A)	211	212
+0	34.7	31.5
+10	33	29.8
+20	30	27
+30	26.5	23.8
+40	23.2	21
+50	20.5	18.5
+L_initial	34.9	31.7
+
+BLOCK: 6x15x5, N: 20
+Idc(A)	211	212
+0	31.8	28.8
+10	30.2	27.2
+20	27.5	24.8
+30	24.2	21.8
+40	21.2	19.2
+L_initial	32.0	29.0
+
+BLOCK: 6x15x5, N: 19
+Idc(A)	211	212
+0	29.1	26.4
+10	27.8	25
+20	25.2	22.8
+30	22.2	20
+40	19.5	17.8
+L_initial	29.3	26.6
+
+BLOCK: 6x15x5, N: 18
+Idc(A)	211	212
+0	26.6	24
+10	25.2	22.8
+20	23	20.8
+30	20.2	18.2
+L_initial	26.7	24.2
+
+BLOCK: 6x15x5, N: 17
+Idc(A)	211	212
+0	24.2	21.9
+10	23	20.8
+20	21	18.9
+30	18.5	16.7
+L_initial	24.4	22.1
+
+BLOCK: 6x15x5, N: 16
+Idc(A)	211	212
+0	22.1	20
+10	21	19
+20	19.1	17.2
+30	16.8	15.2
+L_initial	22.2	20.1
+
+BLOCK: 6x15x5, N: 15
+Idc(A)	211	212
+0	20.1	18.2
+10	19.1	17.2
+20	17.5	15.8
+L_initial	20.2	18.3
+
+BLOCK: 6x15x5, N: 14
+Idc(A)	211	212
+0	18.2	16.5
+10	17.2	15.6
+20	15.8	14.3
+L_initial	18.3	16.6
+
+BLOCK: 7x22x5, N: 36
+Idc(A)	211	212	217	218	219	220	221	222
+0	92	83	82	73.5	71.2	70.8	69	68.5
+10	87.5	79	78	69.5	67.5	67	65.5	65
+20	80.5	72.5	71.5	63.5	61.5	61	59.5	59
+30	71.5	64.5	63.5	56.5	54.5	54.2	53	52.5
+40	62	56	55	49	47.5	47.2	46	45.8
+50	53	48	47	42	40.8	40.5	39.5	39.2
+60	45.5	41.5	40.5	36.2	35	34.8	34	33.8
+70	39.5	36.2	35.5	31.8	30.8	30.5	29.8	29.5
+80	34.8	32	31.2	28.2	27.2	27	26.5	26.2
+L_initial	92.8	83.5	82.5	74.0	71.8	71.2	69.5	69.0
+
+BLOCK: 7x22x5, N: 35
+Idc(A)	211	212	217	218	219	220	221	222
+0	87	78.5	77.5	69.5	67.2	66.8	65	64.5
+10	82.5	74.5	73.5	66	63.8	63.2	61.8	61.2
+20	75.5	68.5	67.5	60.5	58.5	58	56.8	56.2
+30	67	61	60	54	52.2	51.8	50.5	50
+40	58.5	53	52.2	47	45.5	45	44.2	43.8
+50	50.5	46	45.2	40.5	39.2	38.8	38	37.8
+60	43.8	40	39.2	35.2	34.2	33.8	33	32.8
+70	38.2	35	34.2	31	30	29.8	29	28.8
+80	33.8	31	30.2	27.2	26.5	26.2	25.8	25.5
+L_initial	87.5	79.0	78.0	70.0	67.8	67.2	65.5	65.0
+
+BLOCK: 7x22x5, N: 34
+Idc(A)	211	212	217	218	219	220	221	222
+0	82.2	74.2	73.2	65.5	63.5	63	61.5	61
+10	78	70.5	69.5	62.2	60.2	59.8	58.2	57.8
+20	71.5	64.8	63.8	57.2	55.2	54.8	53.5	53
+30	63.5	57.8	56.8	51	49.5	49	48	47.5
+40	55.5	50.5	49.8	44.8	43.5	43	42.2	41.8
+50	48.2	44	43.2	39	37.8	37.5	36.8	36.5
+60	42	38.2	37.5	34	33	32.8	32	31.8
+70	36.8	33.8	33	30	29	28.8	28.2	28
+80	32.5	29.8	29.2	26.5	25.8	25.5	25	24.8
+L_initial	82.8	74.8	73.8	66.0	64.0	63.5	62.0	61.5
+
+BLOCK: 7x22x5, N: 33
+Idc(A)	211	212	217
+0	77.8	70.2	69.2
+10	74	66.8	65.8
+20	67.5	61	60
+30	60	54.5	53.5
+40	52.5	47.8	47
+50	45.8	41.8	41
+60	40	36.8	36
+70	35.2	32.5	32
+80	31	29	28.2
+L_initial	78.3	70.8	69.8
+
+BLOCK: 7x22x5, N: 32
+Idc(A)	211	212	217
+0	73.5	66.5	65.5
+10	70	63.2	62.2
+20	64	57.8	56.8
+30	57	51.8	50.8
+40	50	45.5	44.8
+50	43.8	40	39.2
+60	38.2	35.2	34.5
+70	33.8	31.2	30.5
+80	29.8	27.8	27
+L_initial	74.0	67.0	66.0
+
+BLOCK: 7x22x5, N: 31
+Idc(A)	211	212	217
+0	69.5	62.8	61.8
+10	66.2	59.8	58.8
+20	60.5	54.8	53.8
+30	54	49	48
+40	47.5	43.2	42.2
+50	41.5	38	37.2
+60	36.5	33.5	32.8
+70	32.2	29.8	29
+L_initial	70.0	63.2	62.2
+
+BLOCK: 7x22x5, N: 30
+Idc(A)	211	212	217
+0	65.8	59.5	58.5
+10	62.5	56.5	55.5
+20	57.2	51.8	50.8
+30	51	46.2	45.2
+40	44.8	40.8	40
+50	39.2	35.8	35
+60	34.8	31.8	31
+70	30.8	28.2	27.5
+L_initial	66.2	60.0	59.0
+
+BLOCK: 7x22x5, N: 29
+Idc(A)	211	212	217
+0	62.2	56.2	55.2
+10	59	53.5	52.5
+20	54	49	48
+30	48.2	43.8	42.8
+40	42.5	38.5	37.8
+50	37.2	34	33.2
+60	32.8	30	29.2
+L_initial	62.6	56.6	55.6
+
+BLOCK: 7x22x5, N: 28
+Idc(A)	211	212	217
+0	58.8	53	52
+10	56	50.5	49.5
+20	51	46.2	45.2
+30	45.5	41.2	40.2
+40	40	36.5	35.8
+50	35.2	32	31.2
+60	31	28.2	27.5
+L_initial	59.2	53.4	52.4
+
+BLOCK: 7x22x5, N: 27
+Idc(A)	211	212	217
+0	55.5	50	49
+10	52.8	47.5	46.5
+20	48.2	43.5	42.5
+30	43	39	38
+40	38	34.5	33.8
+50	33.5	30.5	29.8
+L_initial	55.8	50.3	49.3
+
+BLOCK: 7x22x5, N: 26
+Idc(A)	211	212	217
+0	52.5	47.2	46.2
+10	50	45	44
+20	45.8	41.2	40.2
+30	40.8	36.8	35.8
+40	36	32.5	31.8
+L_initial	52.8	47.5	46.5
+</textarea>
             <div style="text-align: center; margin-top: 20px;">
                 <button id="processBtn" class="btn">📊 Process and Analyze Data</button>
             </div>
@@ -330,9 +394,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- START: Integration & Data Transformation Logic ---
     
-    /**
-     * UPDATED: This function now scans for the 'L_initial' row and stores its values.
-     */
     function parseRawData(text) {
         const blocks = text.trim().split(/\n\s*\n/);
         const allSeries = [];
@@ -378,7 +439,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 tableEndIndex = i + 1;
             }
 
-            // NEW: Look for L_initial row after the main data table
             let lInitialOverrideValues = [];
             const lInitialLine = lines.slice(tableEndIndex).find(l => l.toLowerCase().startsWith('l_initial'));
             if (lInitialLine) {
@@ -399,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     model: headers[i],
                     idc: idcValues,
                     inductance: inductanceData[i-1],
-                    lInitialOverride: lInitialOverrideValues[i-1] // Can be undefined if not found
+                    lInitialOverride: lInitialOverrideValues[i-1] 
                 });
             }
         });
@@ -408,18 +468,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return allSeries;
     }
 
-    /**
-     * UPDATED: This function now uses the L_initial override value for the final data object,
-     * while the calculation continues to use the measured Idc=0 value.
-     */
     function calculateAndBuildFinalData(series) {
         return series.map(s => {
-            // Calculation uses the measured data table (s.inductance) where index 0 is Idc=0
             const idc_70 = findIdcForTarget(s.idc, s.inductance, 70);
             const idc_80 = findIdcForTarget(s.idc, s.inductance, 80);
 
-            // The final L_initial value for display/graphing is the override value.
-            // If the override is not found, it falls back to the measured Idc=0 value.
             const final_L_initial = s.lInitialOverride !== undefined && !isNaN(s.lInitialOverride) 
                 ? s.lInitialOverride 
                 : s.inductance[0];
@@ -480,7 +533,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- END: Integration Logic ---
 
 
-    // --- START: Analysis App Logic (No changes needed below this line) ---
+    // --- START: Analysis App Logic ---
     const app = {
         elements: {}, chartInstance: null, parsedData: [],
         defaultColors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
@@ -489,7 +542,25 @@ document.addEventListener('DOMContentLoaded', () => {
         cacheElements() { const ids = [ 'dataInput', 'xAxis', 'yAxis', 'centerLegFilterControls', 'outerCoreFilterControls', 'mainChart', 'statsTableBody', 'dataCount', 'chartStatus', 'btnExportCSV', 'btnExportPNG', 'parsedDataTableBody', 'selectAllCenterLegs', 'deselectAllCenterLegs', 'selectAllOuterCores', 'deselectAllOuterCores' ]; ids.forEach(id => this.elements[id] = document.getElementById(id)); },
         addEventListeners() { const controlsToRedrawChart = ['xAxis', 'yAxis', 'centerLegFilterControls', 'outerCoreFilterControls']; controlsToRedrawChart.forEach(id => this.elements[id].addEventListener('change', () => this.updateUI())); this.elements.btnExportCSV.addEventListener('click', () => this.exportCSV()); this.elements.btnExportPNG.addEventListener('click', () => this.exportPNG()); this.elements.selectAllCenterLegs.addEventListener('click', () => { this.setAllCheckboxes(this.elements.centerLegFilterControls, true); this.updateUI(); }); this.elements.deselectAllCenterLegs.addEventListener('click', () => { this.setAllCheckboxes(this.elements.centerLegFilterControls, false); this.updateUI(); }); this.elements.selectAllOuterCores.addEventListener('click', () => { this.setAllCheckboxes(this.elements.outerCoreFilterControls, true); this.updateUI(); }); this.elements.deselectAllOuterCores.addEventListener('click', () => { this.setAllCheckboxes(this.elements.outerCoreFilterControls, false); this.updateUI(); }); },
         setAllCheckboxes(container, isChecked) { container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = isChecked); },
-        parseData() { const lines = this.elements.dataInput.value.trim().split('\n'); const result = []; let currentBlock = this.createEmptyBlock(); const flushBlock = () => { if (!currentBlock.centerLegCore) return; const { centerLegCore, outerCoreShells, lValues, idc70Values, idc80Values, gapValues, nValues } = currentBlock; const n = Math.min(outerCoreShells.length, lValues.length, idc70Values.length, idc80Values.length, gapValues.length, nValues.length); for (let i = 0; i < n; i++) { const L = lValues[i], I70 = idc70Values[i], I80 = idc80Values[i], G = gapValues[i], N = nValues[i]; if ([L, I70, I80, G, N].some(v => v === undefined || isNaN(v))) continue; result.push({ centerLegCore: centerLegCore, outerCoreShell: String(outerCoreShells[i]), L_initial: L, Idc_70: I70, Idc_80: I80, Gap: G, N: N, FoM: L * I80, }); } currentBlock = this.createEmptyBlock(); }; for (const line of lines) { const trimmedLine = line.trim(); if (!trimmedLine) continue; const parts = trimmedLine.split(/\s+/); const label = parts[0].toLowerCase(); if (label.startsWith('clc_')) { flushBlock(); currentBlock.centerLegCore = parts[0]; currentBlock.outerCoreShells = parts.slice(1); } else if (label.startsWith('l_initial')) { currentBlock.lValues = parts.slice(1).map(parseFloat); } else if (label.startsWith('idc_70%')) { currentBlock.idc70Values = parts.slice(1).map(parseFloat); } else if (label.startsWith('idc_80%')) { currentBlock.idc80Values = parts.slice(1).map(parseFloat); } else if (label.startsWith('gap(mm)')) { currentBlock.gapValues = parts.slice(1).map(parseFloat); } else if (label.startsWith('n')) { currentBlock.nValues = parts.slice(1).map(parseFloat); } } flushBlock(); return result; },
+        parseData() { const lines = this.elements.dataInput.value.trim().split('\n'); const result = []; let currentBlock = this.createEmptyBlock(); const flushBlock = () => { if (!currentBlock.centerLegCore) return; const { centerLegCore, outerCoreShells, lValues, idc70Values, idc80Values, gapValues, nValues } = currentBlock; const n = Math.min(outerCoreShells.length, lValues.length, idc70Values.length, idc80Values.length, gapValues.length, nValues.length); for (let i = 0; i < n; i++) { const L = lValues[i], I70 = idc70Values[i], I80 = idc80Values[i], G = gapValues[i], N = nValues[i]; if ([L, I70, I80, G, N].some(v => v === undefined || isNaN(v))) continue; result.push({ centerLegCore: centerLegCore, outerCoreShell: String(outerCoreShells[i]), L_initial: L, Idc_70: I70, Idc_80: I80, Gap: G, N: N, FoM: L * I80, }); } currentBlock = this.createEmptyBlock(); }; for (const line of lines) { const trimmedLine = line.trim(); if (!trimmedLine) continue; const parts = trimmedLine.split(/\s+/); const label = parts[0].toLowerCase();
+            
+            // ==================================================================
+            // ===== ✨ FIXED SECTION START ✨ =====
+            // This logic was changed to correctly identify header lines.
+            // ==================================================================
+            const knownLabels = ['l_initial', 'idc_70%', 'idc_80%', 'gap(mm)', 'n'];
+            const isHeaderLine = !knownLabels.some(known => label.startsWith(known));
+
+            if (isHeaderLine) {
+                flushBlock();
+                currentBlock.centerLegCore = parts[0];
+                currentBlock.outerCoreShells = parts.slice(1);
+            } 
+            // ==================================================================
+            // ===== ✨ FIXED SECTION END ✨ =====
+            // ==================================================================
+            
+            else if (label.startsWith('l_initial')) { currentBlock.lValues = parts.slice(1).map(parseFloat); } else if (label.startsWith('idc_70%')) { currentBlock.idc70Values = parts.slice(1).map(parseFloat); } else if (label.startsWith('idc_80%')) { currentBlock.idc80Values = parts.slice(1).map(parseFloat); } else if (label.startsWith('gap(mm)')) { currentBlock.gapValues = parts.slice(1).map(parseFloat); } else if (label.startsWith('n')) { currentBlock.nValues = parts.slice(1).map(parseFloat); } } flushBlock(); return result; },
         createEmptyBlock: () => ({ centerLegCore: null, outerCoreShells: [], lValues: [], idc70Values: [], idc80Values: [], gapValues: [], nValues: [] }),
         getFilteredData() { const selectedCenterLegs = new Set(Array.from(this.elements.centerLegFilterControls.querySelectorAll('input:checked')).map(chk => chk.dataset.value)); const selectedOuterShells = new Set(Array.from(this.elements.outerCoreFilterControls.querySelectorAll('input:checked')).map(chk => chk.dataset.value)); if (selectedCenterLegs.size === 0 || selectedOuterShells.size === 0) return []; return this.parsedData.filter(d => selectedCenterLegs.has(d.centerLegCore) && selectedOuterShells.has(d.outerCoreShell)); },
         groupData: (data, groupBy) => data.reduce((groups, item) => { const key = item[groupBy]; if (!groups[key]) groups[key] = []; groups[key].push(item); return groups; }, {}),
@@ -499,10 +570,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFilterControls(container, values, checkAll = false) { const checkedState = new Map(); container.querySelectorAll('input[type="checkbox"]').forEach(chk => { checkedState.set(chk.dataset.value, chk.checked); }); container.innerHTML = ''; if (!values || values.length === 0) return; values.forEach(value => { const isChecked = checkAll ? 'checked' : (checkedState.has(value) ? (checkedState.get(value) ? 'checked' : '') : 'checked'); container.innerHTML += `<div class="filter-item"><input type="checkbox" id="chk-${container.id}-${value}" data-value="${value}" ${isChecked}><label for="chk-${container.id}-${value}">${value}</label></div>`; }); },
         updateStatsTable(groupedData) { const { statsTableBody } = this.elements; statsTableBody.innerHTML = ''; if (Object.keys(groupedData).length === 0) { statsTableBody.innerHTML = '<tr><td colspan="7">No data selected. Check filters.</td></tr>'; return; } for (const group in groupedData) { const items = groupedData[group]; const calcStats = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; statsTableBody.innerHTML += `<tr><td><strong>${group}</strong></td><td>${items.length}</td><td>${calcStats(items.map(d => d.L_initial)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Idc_70)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Idc_80)).toFixed(2)}</td><td>${calcStats(items.map(d => d.FoM)).toFixed(1)}</td><td>${calcStats(items.map(d => d.Gap)).toFixed(2)}</td></tr>`; } },
         showStatus(msg, isError = false) { const { chartStatus } = this.elements; chartStatus.textContent = msg; chartStatus.style.display = 'block'; chartStatus.style.background = isError ? 'rgba(200, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.7)'; },
-        
-        // ==================================================================
-        // ===== ✨ MODIFIED SECTION START ✨ =====
-        // ==================================================================
         createChart() {
             const baseData = this.getFilteredData();
             const groupedData = this.groupData(baseData, 'centerLegCore');
@@ -512,7 +579,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.chartInstance.destroy();
             }
 
-            // 클릭으로 생성된 주석(레이블)을 저장할 배열을 초기화합니다.
             this.chartAnnotations = [];
 
             const ctx = this.elements.mainChart.getContext('2d');
@@ -526,7 +592,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const { xAxis, yAxis } = this.elements;
 
-            // 툴팁과 클릭 레이블에 사용될 텍스트를 생성하는 헬퍼 함수입니다.
             const getLabelText = (item) => {
                 if (!item) return '';
                 return [
@@ -558,7 +623,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             });
 
-            // --- NEW: 클릭된 레이블을 그리기 위한 커스텀 플러그인 ---
             const annotationPlugin = {
                 id: 'clickAnnotations',
                 afterDraw: (chart) => {
@@ -572,20 +636,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         const model = chart.getDatasetMeta(annotation.datasetIndex).data[annotation.index];
                         if (!model) return;
 
-                        const x = model.x + 10; // 점 옆에 약간의 간격을 둡니다.
+                        const x = model.x + 10;
                         const y = model.y;
                         const textLines = annotation.text;
                         const lineHeight = 14;
                         const textWidth = Math.max(...textLines.map(line => ctx.measureText(line).width));
                         
-                        // 텍스트 뒤에 배경 상자를 그려 가독성을 높입니다.
                         ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
                         ctx.fillRect(x - 3, y - (lineHeight * textLines.length) - 3, textWidth + 6, (lineHeight * textLines.length) + 6);
                         ctx.strokeStyle = '#999';
                         ctx.lineWidth = 1;
                         ctx.strokeRect(x - 3, y - (lineHeight * textLines.length) - 3, textWidth + 6, (lineHeight * textLines.length) + 6);
 
-                        // 여러 줄의 텍스트를 그립니다.
                         ctx.fillStyle = '#333';
                         textLines.forEach((line, i) => {
                             ctx.fillText(line, x, y - (lineHeight * (textLines.length - 1 - i)));
@@ -598,34 +660,29 @@ document.addEventListener('DOMContentLoaded', () => {
             this.chartInstance = new Chart(this.elements.mainChart, {
                 type: 'scatter',
                 data: { datasets },
-                plugins: [annotationPlugin], // 커스텀 플러그인을 등록합니다.
+                plugins: [annotationPlugin],
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    // --- NEW: onClick 이벤트 핸들러 ---
                     onClick: (event, elements) => {
                         if (elements.length > 0) {
                             const { datasetIndex, index } = elements[0];
                             const item = this.chartInstance.data.datasets[datasetIndex].data[index].raw;
 
-                            // 이 점에 대한 레이블이 이미 있는지 확인합니다.
                             const existingAnnotationIndex = this.chartAnnotations.findIndex(
                                 a => a.datasetIndex === datasetIndex && a.index === index
                             );
 
                             if (existingAnnotationIndex > -1) {
-                                // 이미 있다면 제거합니다 (토글 기능).
                                 this.chartAnnotations.splice(existingAnnotationIndex, 1);
                             } else {
-                                // 없다면 새로 추가합니다.
                                 this.chartAnnotations.push({
                                     datasetIndex,
                                     index,
                                     text: getLabelText(item)
                                 });
                             }
-                            // 차트를 다시 그려서 변경사항을 반영합니다.
-                            this.chartInstance.update('none'); // 'none'은 애니메이션 없이 업데이트합니다.
+                            this.chartInstance.update('none');
                         }
                     },
                     plugins: {
@@ -650,9 +707,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             setTimeout(() => this.elements.chartStatus.style.display = 'none', 1000);
         },
-        // ==================================================================
-        // ===== ✨ MODIFIED SECTION END ✨ =====
-        // ==================================================================
         exportCSV() { const data = this.getFilteredData(); if (data.length === 0) { alert('No data selected to export.'); return; } const headers = "CenterLegCore,OuterCoreShell,L_initial(uH),Idc_70%(A),Idc_80%(A),Gap(mm),N,FoM"; const rows = data.map(d => `${d.centerLegCore},${d.outerCoreShell},${d.L_initial},${d.Idc_70},${d.Idc_80},${d.Gap},${d.N},${d.FoM.toFixed(2)}`); const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n"); const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", "inductance_data_export.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link); },
         exportPNG() { if (!this.chartInstance || !this.getFilteredData().length) { alert('No chart available to export.'); return; } const url = this.chartInstance.toBase64Image(); const link = document.createElement('a'); link.download = 'inductance_chart.png'; link.href = url; link.click(); }
     };
