@@ -1,28 +1,33 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Integrated Inductance Analysis Tool</title>
-        <link rel="stylesheet" href="style.css" />
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-</head>
-<body data-theme="light">
-        <header class="header">
-        <div class="header-content">
-            <div class="logo-section">
-                <h1 class="page-title">🚀 Inductance Analysis Tool</h1>
-            </div>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                ☀️
-            </button>
-        </div>
-    </header>
+<html lang="ko"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Inductance Analysis Tool (L_initial Logic)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+<link rel="stylesheet" href="style.css"></head>
+<body>
+	<header class="header">
+    <div class="header-content">
+      <div class="logo-section">
+        <a href="https://emlizard.github.io/main-page/" class="back-btn">
+          <i class="fas fa-arrow-left"></i>
+          ← Back to Calculators
+        </a>
+        <div class="page-title">🚀 Integrated Inductance Analysis Tool</div>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="themeIcon"></i>
+      </button>
+    </div>
+  </header>
+    <div class="container">
+                
+        <div class="section">
+            <h2 class="section-title">Step 1: Paste Raw Data</h2>
+            <textarea id="rawInput" class="data-input" placeholder="이곳에 데이터를 붙여넣으세요.
+L_initial 행과 Gap(mm) 행을 포함해야 합니다.
 
-    <main class="container">
-                <div class="card animate-in">
-            <h2 class="card-title">Step 1: Paste Raw Data</h2>
-            <textarea id="rawInput" class="input-field" style="height: 250px; font-family: 'Courier New', monospace; font-size: 12px;">
 BLOCK: CLC_6x22x4.1R1, N: 40(6T_0.1x50p)								
 Idc(A)	139	140	141	143	144	145	146	147
 0	128.3	127.2	118.8	130.7	134.2	133.1	132.6	132.9
@@ -42,130 +47,150 @@ Idc(A)	139	140	141	143	144	145	146	147
 15	94.7	100.4	90.2	101.9	106.8	106	106.2	106
 Gap(mm)	3.1	3.1	4.1	3.1	3.1	3.1	3.1	3.1
 L_initial	133.9	132.9	123.4	139.3	140.1	139	138.4	138.9
-</textarea>
+								
+BLOCK: CLC_8x22x4.1R1, N: 38(6T_0.1x50p)								
+Idc(A)	139	140	141	143	144	145	146	147
+0	129.7	129.2	120.5	133.3	135.8	134.9	134.4	134.8
+10	108.7	111.8	102.3	113.5	117.9	117.3	117.1	117.1
+13.5	97.3	102.6	92.4	103.8	109.2	108.5	108.4	108.3
+14.5	94.1	99.9	89.6	100.9	106.6	105.8	105.7	105.7
+15	92.6	98.5	88.2	99.7	105.2	104.4	104.6	104.4
+Gap(mm)	3.1	3.1	4.1	3.1	3.1	3.1	3.1	3.1
+L_initial	132.9	132	122.9	136.4	139.3	137.9	137.3	137.8
+								
+BLOCK: CLC_8x22x4.1R1, N: 37(6T_0.1x50p)								
+Idc(A)	139	140	141	143	144	145	146	147
+0	122.9	122.1	114.1	126.3	128.8	127.9	127.4	127.8
+10	104.1	106.8	97.9	108.6	112.8	112.2	111.9	112.1
+13.5	93.8	98.5	89.1	99.7	104.9	104.1	104	104
+14.5	90.9	96	86.5	97.1	102.5	101.7	101.6	101.7
+15	89.5	94.7	85.2	95.7	101.5	100.5	100.6	100.5
+Gap(mm)	3.1	3.1	4.1	3.1	3.1	3.1	3.1	3.1
+L_initial	125.7	124.6	116.1	128.9	131.8	130.7	130.1	130.5
+								
+BLOCK: CLC_6x22x4.1R0, N: 40(6T_0.1x50p)								
+Idc(A)	139	140	141	143	144	145	146	147
+0	130.5	129.9	121	136.1	136.9	135.8	135.3	135.6
+10	110.2	113.3	103.7	116.1	119.5	118.6	118.4	118.5
+13.5	99.2	104.4	94.4	106.3	110.8	109.9	109.9	109.8
+14.5	96.1	101.8	91.6	103.5	108.4	107.3	107.4	107.3
+15	94.7	100.4	90.2	101.9	106.8	106	106.2	106
+Gap(mm)	3.1	3.1	4.1	3.1	3.1	3.1	3.1	3.1
+L_initial	133.9	132.9	123.4	139.3	140.1	139	138.4	138.9
+								
+BLOCK: CLC_6x22x4.1R1, N: 30(6T_0.1x60p)								
+Idc(A)	139	142	143	144	145	147		
+0	71.3	73.5	73.6	73.9	73.5	73.4		
+10	65.7	67.4	67.9	69.3	68.7	68.8		
+13.5	62.2	63.6	64.8	66.6	66	66.2		
+15	60.5	61.9	63.4	65.4	64.8	64.9		
+19	55.9	56.9	59.5	62.1	61.6	61.6		
+Gap(mm)	3.1	3.1	3.1	3.1	3.1	3.1		
+L_initial	71.8	74.5	74.3	74.7	74.3	74.2		
+								
+BLOCK: CLC_6x22x4.1R1, N: 31(6T_0.1x70p)								
+Idc(A)	139	144	145	147				
+0	78.06	81.3	81	81				
+10	70.9	75.3	75	75				
+13.5	66.5	72	71.8	71.8				
+15	64.4	70.5	70.2	70.3				
+19	58.7	66.3	66	66				
+20	57.4	65.6	64.9	64.8				
+23	53	62	61.4	61.4				
+Gap(mm)	3.1	3.1	3.1	3.1				
+L_initial	79.6	83.05	82.7	82.5				
+								
+BLOCK: CLC_6x22x4.1R1, N: 47(6T_0.1x50p)								
+Idc(A)	145							
+0	183.2							
+5	170							
+10	151.5							
+11	147.4							
+11.5	145.4							
+12	143.5							
+13.5	137.6							
+Gap(mm)	3.1							
+L_initial	190.3							
+								
+BLOCK: CLC_6x22x4.1R1, N: 46(6T_0.1x50p)								
+Idc(A)	145							
+0	175							
+5	164							
+10	146.3							
+11	142.5							
+11.5	140.6							
+12	138.7							
+13.5	133.2							
+Gap(mm)	3.1							
+L_initial	181.2							
+
+"></textarea>
             <div style="text-align: center; margin-top: 20px;">
-                <button id="processBtn" class="btn btn-full">📊 Process and Analyze Data</button>
+                <button id="processBtn" class="btn">📊 Process and Analyze Data</button>
             </div>
-            <div id="processingErrors" class="processing-errors"></div>
+             <div id="processingErrors" style="margin-top:15px; font-size:13px; color:#c00; font-family:'Courier New', monospace;"></div>
         </div>
 
-                <textarea id="dataInput" class="hidden"></textarea>
+        <textarea id="dataInput" class="data-input hidden"></textarea>
 
-                <div id="rawCurveChartContainer" class="card hidden animate-in">
-            <h2 class="card-title">Raw L-I Curve Chart (Idc vs. Inductance)</h2>
-            <div class="chart-wrapper" style="height: 450px;">
-                <canvas id="rawCurveChart"></canvas>
-            </div>
-        </div>
-
-                <div id="analysisContainer" class="hidden animate-in">
-            <hr class="divider">
-            <div class="hero" style="margin-bottom: 2rem;">
-                <h1>Step 2: Analysis Results</h1>
-            </div>
-
-                        <div class="card">
-                <h2 class="card-title">Parsed Data Confirmation</h2>
+        <div id="analysisContainer" class="hidden">
+            <hr style="margin: 40px 0;">
+            <h2 class="section-title" style="text-align: center; font-size: 24px; border-bottom: none;">Step 2: Analysis Results</h2>
+            <div class="section">
+                <h2 class="section-title">Parsed Data Confirmation</h2>
                 <div id="dataCount" class="data-count">Waiting for data...</div>
                 <div class="table-wrapper">
                     <table class="stats-table" id="parsedDataTable">
                         <thead>
                             <tr>
-                                <th>Center Leg</th><th>Outer Shell</th><th>L_initial(uH)</th><th>Idc_70%(A)</th><th>Idc_80%(A)</th><th>Gap(mm)</th><th>N</th><th>FoM</th>
+                                                                <th>Center Leg</th><th>Outer Shell</th><th>L_initial(uH)</th><th>Idc_70%(A)</th><th>Idc_80%(A)</th><th>Gap(mm)</th><th>N</th>
                             </tr>
                         </thead>
                         <tbody id="parsedDataTableBody"></tbody>
                     </table>
                 </div>
             </div>
-
-                        <div class="grid grid-2">
-                <div class="card">
-                    <h2 class="card-title">Center Leg Core Filter</h2>
-                    <div class="filter-actions">
-                        <button class="btn-filter" id="selectAllCenterLegs">Select All</button>
-                        <button class="btn-filter" id="deselectAllCenterLegs">Deselect All</button>
-                    </div>
-                    <div class="filter-controls" id="centerLegFilterControls"></div>
+            <div class="section">
+                <h2 class="section-title">Center Leg Core Filter</h2>
+                <div class="filter-actions">
+                    <button class="btn-filter" id="selectAllCenterLegs">Select All</button>
+                    <button class="btn-filter" id="deselectAllCenterLegs">Deselect All</button>
                 </div>
-                <div class="card">
-                    <h2 class="card-title">Outer Core Shell Filter</h2>
-                    <div class="filter-actions">
-                        <button class="btn-filter" id="selectAllOuterCores">Select All</button>
-                        <button class="btn-filter" id="deselectAllOuterCores">Deselect All</button>
-                    </div>
-                    <div class="filter-controls" id="outerCoreFilterControls"></div>
+                <div class="filter-controls" id="centerLegFilterControls"></div>
+            </div>
+            <div class="section">
+                <h2 class="section-title">Outer Core Shell Filter</h2>
+                <div class="filter-actions">
+                    <button class="btn-filter" id="selectAllOuterCores">Select All</button>
+                    <button class="btn-filter" id="deselectAllOuterCores">Deselect All</button>
+                </div>
+                <div class="filter-controls" id="outerCoreFilterControls"></div>
+            </div>
+            <div class="section">
+                <h2 class="section-title">Analysis Options</h2>
+                <div class="controls">
+                                        <div class="control-group"><label for="xAxis">X-Axis</label><select id="xAxis"><option value="Idc_80">Idc 80% (A)</option><option value="Idc_70">Idc 70% (A)</option><option value="L_initial">Inductance (μH)</option><option value="Gap">Gap (mm)</option></select></div>
+                    <div class="control-group"><label for="yAxis">Y-Axis</label><select id="yAxis"><option value="L_initial">Inductance (μH)</option><option value="Idc_80">Idc 80% (A)</option><option value="Idc_70">Idc 70% (A)</option><option value="Gap">Gap (mm)</option></select></div>
+                    <div class="control-group"><label>&nbsp;</label><button class="btn btn-secondary" id="btnExportCSV">Export Selected Data to CSV</button></div>
+                    <div class="control-group"><label>&nbsp;</label><button class="btn btn-secondary" id="btnExportPNG">Export Chart to PNG</button></div>
                 </div>
             </div>
-
-                        <div class="card">
-                <h2 class="card-title">Analysis Options</h2>
-                <div class="grid grid-2">
-                    <div class="input-group">
-                        <label for="xAxis" class="input-label">X-Axis</label>
-                        <select id="xAxis" class="input-field">
-                            <option value="Idc_80">Idc 80% (A)</option>
-                            <option value="Idc_70">Idc 70% (A)</option>
-                            <option value="L_initial">Inductance (μH)</option>
-                            <option value="FoM">FoM (L×Idc)</option>
-                            <option value="Gap">Gap (mm)</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label for="yAxis" class="input-label">Y-Axis</label>
-                        <select id="yAxis" class="input-field">
-                            <option value="L_initial">Inductance (μH)</option>
-                            <option value="Idc_80">Idc 80% (A)</option>
-                            <option value="Idc_70">Idc 70% (A)</option>
-                            <option value="FoM">FoM (L×Idc)</option>
-                            <option value="Gap">Gap (mm)</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <button class="btn btn-secondary btn-full" id="btnExportCSV">Export Selected Data to CSV</button>
-                    </div>
-                    <div class="input-group">
-                        <button class="btn btn-secondary btn-full" id="btnExportPNG">Export Chart to PNG</button>
-                    </div>
-                </div>
+            <div class="section">
+                <h2 class="section-title">Analysis Chart</h2>
+                <div class="chart-container"><canvas id="mainChart"></canvas><div id="chartStatus">Loading...</div></div>
             </div>
-
-                        <div class="card">
-                <h2 class="card-title">Analysis Chart (Summary)</h2>
-                <div class="chart-wrapper" style="height: 500px;">
-                    <canvas id="mainChart"></canvas>
-                    <div id="chartStatus">Loading...</div>
-                </div>
-            </div>
-
-                        <div class="card">
-                <h2 class="card-title">Statistics Summary (Based on selected data)</h2>
+            <div class="section">
+                <h2 class="section-title">Statistics Summary (Based on selected data)</h2>
                 <div class="table-wrapper" style="max-height: none;">
                     <table class="stats-table" id="statsTable">
-                        <thead>
-                            <tr><th>Group (Center Leg)</th><th>Count</th><th>L Avg (μH)</th><th>Idc_70% Avg (A)</th><th>Idc_80% Avg (A)</th><th>FoM Avg</th><th>Gap Avg (mm)</th></tr>
-                        </thead>
+                                                <thead><tr><th>Group (Center Leg)</th><th>Count</th><th>L Avg (μH)</th><th>Idc_70% Avg (A)</th><th>Idc_80% Avg (A)</th><th>Gap Avg (mm)</th></tr></thead>
                         <tbody id="statsTableBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
-        <script>
-        const themeToggle = document.getElementById('themeToggle');
-        const body = document.body;
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = body.getAttribute('data-theme');
-            if (currentTheme === 'light') {
-                body.setAttribute('data-theme', 'dark');
-                themeToggle.textContent = '🌙';
-            } else {
-                body.setAttribute('data-theme', 'light');
-                themeToggle.textContent = '☀️';
-            }
-        });
-    </script>
-        <script src="script.js"></script>
-</body>
-</html>
+
+
+<script src="script.js"></script></body></html>
