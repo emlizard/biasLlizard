@@ -1,20 +1,8 @@
-// --- START: Calculation Logic (Interpolation/Extrapolation) ---
-class CubicSpline {
-    constructor(x, y) { this.x = [...x]; this.y = [...y]; this.n = x.length; this.calculateCoefficients(); }
-    calculateCoefficients() { const n = this.n; const h = new Array(n - 1); for (let i = 0; i < n - 1; i++) h[i] = this.x[i + 1] - this.x[i]; const alpha = new Array(n - 1); for (let i = 1; i < n - 1; i++) alpha[i] = (3 / h[i]) * (this.y[i + 1] - this.y[i]) - (3 / h[i - 1]) * (this.y[i] - this.y[i - 1]); const l = new Array(n); const mu = new Array(n); const z = new Array(n); l[0] = 1; mu[0] = 0; z[0] = 0; for (let i = 1; i < n - 1; i++) { l[i] = 2 * (this.x[i + 1] - this.x[i - 1]) - h[i - 1] * mu[i - 1]; mu[i] = h[i] / l[i]; z[i] = (alpha[i] - h[i - 1] * z[i - 1]) / l[i]; } l[n - 1] = 1; z[n - 1] = 0; this.c = new Array(n); this.b = new Array(n - 1); this.d = new Array(n - 1); this.c[n - 1] = 0; for (let j = n - 2; j >= 0; j--) { this.c[j] = z[j] - mu[j] * this.c[j + 1]; this.b[j] = (this.y[j + 1] - this.y[j]) / h[j] - h[j] * (this.c[j + 1] + 2 * this.c[j]) / 3; this.d[j] = (this.c[j + 1] - this.c[j]) / (3 * h[j]); } }
-    interpolate(x) { if (x < this.x[0] || x > this.x[this.n-1]) return null; let i = 0; for (i = 0; i < this.n - 1; i++) if (x <= this.x[i + 1]) break; const dx = x - this.x[i]; return this.y[i] + this.b[i] * dx + this.c[i] * dx * dx + this.d[i] * dx * dx * dx; }
-    findX(targetY, tolerance = 0.001) { let left = this.x[0], right = this.x[this.n - 1]; let iterations = 0; const maxIterations = 200; while (right - left > tolerance && iterations < maxIterations) { const mid = (left + right) / 2; const midY = this.interpolate(mid); if (midY === null) return { value: null }; if (midY > targetY) left = mid; else right = mid; iterations++; } const finalValue = (left + right) / 2; return { value: finalValue, isExtrapolated: false }; }
-}
-function polynomialRegression(x, y) { const n = x.length; let sumX = 0, sumY = 0, sumX2 = 0, sumX3 = 0, sumX4 = 0, sumXY = 0, sumX2Y = 0; for (let i = 0; i < n; i++) { sumX += x[i]; sumY += y[i]; sumX2 += x[i] * x[i]; sumX3 += x[i] * x[i] * x[i]; sumX4 += x[i] * x[i] * x[i] * x[i]; sumXY += x[i] * y[i]; sumX2Y += x[i] * x[i] * y[i]; } const SXX = sumX2 - sumX * sumX / n; const SXY = sumXY - sumX * sumY / n; const SXX2 = sumX3 - sumX * sumX2 / n; const SX2Y = sumX2Y - sumX2 * sumY / n; const SX2X2 = sumX4 - sumX2 * sumX2 / n; const denominator = (SX2X2 * SXX - SXX2 * SXX2); if (Math.abs(denominator) < 1e-10) return null; const a = (SX2Y * SXX - SXY * SXX2) / denominator; const b = (SXY * SX2X2 - SX2Y * SXX2) / denominator; const c = sumY / n - b * sumX / n - a * sumX2 / n; const yMean = sumY / n; let sst = 0, sse = 0; for (let i = 0; i < n; i++) { sst += (y[i] - yMean) * (y[i] - yMean); const predictedY = a * x[i] * x[i] + b * x[i] + c; sse += (y[i] - predictedY) * (y[i] - predictedY); } const r2 = 1 - (sse / sst); return { coefficients: [a, b, c], r2 }; }
-function solveQuadratic(a, b, c, context, range) { const discriminant = b * b - 4 * a * c; if (discriminant < 0) return null; const root1 = (-b + Math.sqrt(discriminant)) / (2 * a); const root2 = (-b - Math.sqrt(discriminant)) / (2 * a); if (context === 'upper') { return root1 > range[1] ? root1 : (root2 > range[1] ? root2 : null); } if (context === 'lower') { return root1 < range[0] ? root1 : (root2 < range[0] ? root2 : null); } return null; }
-function findIdcForTarget(idcValues, inductanceValues, targetPercentage) { const initialInductance = inductanceValues[0]; if (initialInductance === 0) return null; const normalizedInductance = inductanceValues.map(val => (val / initialInductance) * 100); const minInductance = Math.min(...normalizedInductance); const maxInductance = Math.max(...normalizedInductance); let resultIdc = null; if (targetPercentage >= minInductance && targetPercentage <= maxInductance) { const spline = new CubicSpline(idcValues, normalizedInductance); const splineResult = spline.findX(targetPercentage); resultIdc = splineResult.value; } else { const regression = polynomialRegression(idcValues, normalizedInductance); if (regression && regression.r2 >= 0.95) { const [a, b, c] = regression.coefficients; const c_prime = c - targetPercentage; const context = targetPercentage < minInductance ? 'upper' : 'lower'; const idcRange = [Math.min(...idcValues), Math.max(...idcValues)]; resultIdc = solveQuadratic(a, b, c_prime, context, idcRange); } } return resultIdc; }
-// --- END: Calculation Logic ---
-
-
 // --- START: Theme Toggle Logic (NEW) ---
 function toggleTheme() {
     const body = document.body;
     const themeIcon = document.getElementById('themeIcon');
+    // data-theme 속성이 없으면 시스템 설정을 확인
     const currentTheme = body.dataset.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     
     if (currentTheme === 'dark') {
@@ -28,37 +16,47 @@ function toggleTheme() {
         themeIcon.classList.add('fa-sun');
         localStorage.setItem('theme', 'dark');
     }
+    // 차트가 이미 그려져 있다면 테마에 맞게 다시 그림
+    if (window.app && window.app.chartInstance) {
+        window.app.createChart();
+    }
 }
 
 // Set initial theme on page load
 (function () {
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const themeIcon = document.getElementById('themeIcon');
-    
-    if (savedTheme) {
-        document.body.dataset.theme = savedTheme;
-        if (savedTheme === 'dark') {
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
-        } else {
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-        }
-    } else {
-        // If no saved theme, use system preference
-        if (prefersDark) {
-            document.body.dataset.theme = 'dark';
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
-        } else {
-            document.body.dataset.theme = 'light';
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-        }
-    }
+    // DOM이 로드되기 전에 테마를 설정하여 깜박임 방지
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const targetTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    
+    document.body.dataset.theme = targetTheme;
+
+    // 아이콘은 DOM 로드 후에 설정
+    document.addEventListener('DOMContentLoaded', () => {
+        const themeIcon = document.getElementById('themeIcon');
+        if (targetTheme === 'dark') {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    });
 })();
 // --- END: Theme Toggle Logic ---
+
+
+// --- START: Calculation Logic (Interpolation/Extrapolation) ---
+class CubicSpline {
+    constructor(x, y) { this.x = [...x]; this.y = [...y]; this.n = x.length; this.calculateCoefficients(); }
+    calculateCoefficients() { const n = this.n; const h = new Array(n - 1); for (let i = 0; i < n - 1; i++) h[i] = this.x[i + 1] - this.x[i]; const alpha = new Array(n - 1); for (let i = 1; i < n - 1; i++) alpha[i] = (3 / h[i]) * (this.y[i + 1] - this.y[i]) - (3 / h[i - 1]) * (this.y[i] - this.y[i - 1]); const l = new Array(n); const mu = new Array(n); const z = new Array(n); l[0] = 1; mu[0] = 0; z[0] = 0; for (let i = 1; i < n - 1; i++) { l[i] = 2 * (this.x[i + 1] - this.x[i - 1]) - h[i - 1] * mu[i - 1]; mu[i] = h[i] / l[i]; z[i] = (alpha[i] - h[i - 1] * z[i - 1]) / l[i]; } l[n - 1] = 1; z[n - 1] = 0; this.c = new Array(n); this.b = new Array(n - 1); this.d = new Array(n - 1); this.c[n - 1] = 0; for (let j = n - 2; j >= 0; j--) { this.c[j] = z[j] - mu[j] * this.c[j + 1]; this.b[j] = (this.y[j + 1] - this.y[j]) / h[j] - h[j] * (this.c[j + 1] + 2 * this.c[j]) / 3; this.d[j] = (this.c[j + 1] - this.c[j]) / (3 * h[j]); } }
+    interpolate(x) { if (x < this.x[0] || x > this.x[this.n-1]) return null; let i = 0; for (i = 0; i < this.n - 1; i++) if (x <= this.x[i + 1]) break; const dx = x - this.x[i]; return this.y[i] + this.b[i] * dx + this.c[i] * dx * dx + this.d[i] * dx * dx * dx; }
+    findX(targetY, tolerance = 0.001) { let left = this.x[0], right = this.x[this.n - 1]; let iterations = 0; const maxIterations = 200; while (right - left > tolerance && iterations < maxIterations) { const mid = (left + right) / 2; const midY = this.interpolate(mid); if (midY === null) return { value: null }; if (midY > targetY) left = mid; else right = mid; iterations++; } const finalValue = (left + right) / 2; return { value: finalValue, isExtrapolated: false }; }
+}
+function polynomialRegression(x, y) { const n = x.length; let sumX = 0, sumY = 0, sumX2 = 0, sumX3 = 0, sumX4 = 0, sumXY = 0, sumX2Y = 0; for (let i = 0; i < n; i++) { sumX += x[i]; sumY += y[i]; sumX2 += x[i] * x[i]; sumX3 += x[i] * x[i] * x[i]; sumX4 += x[i] * x[i] * x[i] * x[i]; sumXY += x[i] * y[i]; sumX2Y += x[i] * x[i] * y[i]; } const SXX = sumX2 - sumX * sumX / n; const SXY = sumXY - sumX * sumY / n; const SXX2 = sumX3 - sumX * sumX2 / n; const SX2Y = sumX2Y - sumX2 * sumY / n; const SX2X2 = sumX4 - sumX2 * sumX2 / n; const denominator = (SX2X2 * SXX - SXX2 * SXX2); if (Math.abs(denominator) < 1e-10) return null; const a = (SX2Y * SXX - SXY * SXX2) / denominator; const b = (SXY * SX2X2 - SX2Y * SXX2) / denominator; const c = sumY / n - b * sumX / n - a * sumX2 / n; const yMean = sumY / n; let sst = 0, sse = 0; for (let i = 0; i < n; i++) { sst += (y[i] - yMean) * (y[i] - yMean); const predictedY = a * x[i] * x[i] + b * x[i] + c; sse += (y[i] - predictedY) * (y[i] - predictedY); } const r2 = 1 - (sse / sst); return { coefficients: [a, b, c], r2 }; }
+function solveQuadratic(a, b, c, context, range) { const discriminant = b * b - 4 * a * c; if (discriminant < 0) return null; const root1 = (-b + Math.sqrt(discriminant)) / (2 * a); const root2 = (-b - Math.sqrt(discriminant)) / (2 * a); if (context === 'upper') { return root1 > range[1] ? root1 : (root2 > range[1] ? root2 : null); } if (context === 'lower') { return root1 < range[0] ? root1 : (root2 < range[0] ? root2 : null); } return null; }
+function findIdcForTarget(idcValues, inductanceValues, targetPercentage) { const initialInductance = inductanceValues[0]; if (initialInductance === 0) return null; const normalizedInductance = inductanceValues.map(val => (val / initialInductance) * 100); const minInductance = Math.min(...normalizedInductance); const maxInductance = Math.max(...normalizedInductance); let resultIdc = null; if (targetPercentage >= minInductance && targetPercentage <= maxInductance) { const spline = new CubicSpline(idcValues, normalizedInductance); const splineResult = spline.findX(targetPercentage); resultIdc = splineResult.value; } else { const regression = polynomialRegression(idcValues, normalizedInductance); if (regression && regression.r2 >= 0.95) { const [a, b, c] = regression.coefficients; const c_prime = c - targetPercentage; const context = targetPercentage < minInductance ? 'upper' : 'lower'; const idcRange = [Math.min(...idcValues), Math.max(...idcValues)]; resultIdc = solveQuadratic(a, b, c_prime, context, idcRange); } } return resultIdc; }
+// --- END: Calculation Logic ---
 
 
 // --- START: Main Application Logic ---
@@ -269,9 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
         app.createChart();
     });
 
-    // --- END: Integration Logic ---
-
-
     // --- START: Analysis App Logic (Changes below this line) ---
     const app = {
         elements: {}, chartInstance: null, parsedData: [],
@@ -282,6 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.addEventListeners(); 
             this.activeLineSeries = new Map(); // NEW: To track L-Idc lines
             this.chartAnnotations = []; // Moved from createChart
+            window.app = this; // Expose app to global scope for theme toggle
         },
         cacheElements() { const ids = [ 'dataInput', 'xAxis', 'yAxis', 'centerLegFilterControls', 'outerCoreFilterControls', 'mainChart', 'statsTableBody', 'dataCount', 'chartStatus', 'btnExportCSV', 'btnExportPNG', 'parsedDataTableBody', 'selectAllCenterLegs', 'deselectAllCenterLegs', 'selectAllOuterCores', 'deselectAllOuterCores' ]; ids.forEach(id => this.elements[id] = document.getElementById(id)); },
         addEventListeners() { const controlsToRedrawChart = ['xAxis', 'yAxis', 'centerLegFilterControls', 'outerCoreFilterControls']; controlsToRedrawChart.forEach(id => this.elements[id].addEventListener('change', () => this.updateUI())); this.elements.btnExportCSV.addEventListener('click', () => this.exportCSV()); this.elements.btnExportPNG.addEventListener('click', () => this.exportPNG()); this.elements.selectAllCenterLegs.addEventListener('click', () => { this.setAllCheckboxes(this.elements.centerLegFilterControls, true); this.updateUI(); }); this.elements.deselectAllCenterLegs.addEventListener('click', () => { this.setAllCheckboxes(this.elements.centerLegFilterControls, false); this.updateUI(); }); this.elements.selectAllOuterCores.addEventListener('click', () => { this.setAllCheckboxes(this.elements.outerCoreFilterControls, true); this.updateUI(); }); this.elements.deselectAllOuterCores.addEventListener('click', () => { this.setAllCheckboxes(this.elements.outerCoreFilterControls, false); this.updateUI(); }); },
@@ -298,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const L = lValues[i], I70 = idc70Values[i], I80 = idc80Values[i], G = gapValues[i], N = nValues[i]; 
                     if ([L, I70, I80, G, N].some(v => v === undefined || isNaN(v))) continue; 
                     result.push({ 
-                        centerLegCore: centerLegCore, 
+                        centerLegCore: centerLegCore,s 
                         outerCoreShell: String(outerCoreShells[i]), 
                         L_initial: L, 
                         Idc_70: I70, 
@@ -308,11 +304,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         // FoM REMOVED
                     }); 
                 } 
-                currentBlock = this.createEmptyBlock();a 
+                currentBlock = this.createEmptyBlock();
             }; 
             for (const line of lines) { 
                 const trimmedLine = line.trim(); 
-                if (!trimmedLine) continue;s 
+                if (!trimmedLine) continue;
                 const parts = trimmedLine.split(/\s+/); 
                 const label = parts[0].toLowerCase(); 
                 if (label.startsWith('clc_')) { 
@@ -321,13 +317,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (label.startsWith('l_initial')) { 
                     currentBlock.lValues = parts.slice(1).map(parseFloat); 
                 } else if (label.startsWith('idc_70%')) { 
-                    currentBlock.idc70Values = parts.slice(1).map(parseFloat);js
+                    currentBlock.idc70Values = parts.slice(1).map(parseFloat);
                 } else if (label.startsWith('idc_80%')) { 
                     currentBlock.idc80Values = parts.slice(1).map(parseFloat); 
                 } else if (label.startsWith('gap(mm)')) { 
-                    currentBlock.gapValues = parts.slice(1).map(parseFloat);s 
+                    currentBlock.gapValues = parts.slice(1).map(parseFloat);
                 } else if (label.startsWith('n')) { 
-                    currentBlock.nValues = parts.slice(1).map(parseFloat);s 
+                    currentBlock.nValues = parts.slice(1).map(parseFloat);
                 } 
             } 
             flushBlock(); 
@@ -342,15 +338,15 @@ document.addEventListener('DOMContentLoaded', () => {
             this.activeLineSeries.clear();
             this.chartAnnotations = [];
 
-            const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort();s 
+            const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort();
             const allOuterShells = [...new Set(this.parsedData.map(d => d.outerCoreShell))].sort((a, b) => a - b); 
             this.updateFilterControls(this.elements.centerLegFilterControls, allCenterLegs, true); 
-            this.updateFilterControls(this.elements.outerCoreFilterControls, allOuterShells, true);s 
+            this.updateFilterControls(this.elements.outerCoreFilterControls, allOuterShells, true);
             this.updateParsedDataTable(); 
             this.updateUI(); 
         },
         updateUI() { const baseData = this.getFilteredData(); const groupedData = this.groupData(baseData, 'centerLegCore'); this.updateStatsTable(groupedData); this.createChart(); },
-      s   updateParsedDataTable() { 
+        updateParsedDataTable() { 
             const { parsedDataTableBody, dataCount } = this.elements; 
             parsedDataTableBody.innerHTML = ''; 
             dataCount.textContent = `Total of ${this.parsedData.length} data points recognized`; 
@@ -358,18 +354,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 parsedDataTableBody.innerHTML = `<tr><td colspan="7">No data recognized.</td></tr>`; // Colspan updated to 7
                 return; 
             } 
-            let rows = ''; 
+            let rows = '';s 
             this.parsedData.forEach(d => { 
                 // REMOVED FoM
-                rows += `<tr><td>${d.centerLegCore}</td><td>${d.outerCoreShell}</td><td>${d.L_initial.toFixed(2)}</td><td>${d.Idc_70.toFixed(2)}</td><td>${d.Idc_80.toFixed(2)}</td><td>${d.Gap.toFixed(2)}</td><td>${d.N}</td></tr>`;s 
+                rows += `<tr><td>${d.centerLegCore}</td><td>${d.outerCoreShell}</td><td>${d.L_initial.toFixed(2)}</td><td>${d.Idc_70.toFixed(2)}</td><td>${d.Idc_80.toFixed(2)}</td><td>${d.Gap.toFixed(2)}</td><td>${d.N}</td></tr>`;
             }); 
             parsedDataTableBody.innerHTML = rows; 
         },
-        updateFilterControls(container, values, checkAll = false) { const checkedState = new Map(); container.querySelectorAll('input[type="checkbox"]').forEach(chk => { checkedState.set(chk.dataset.value, chk.checked); }); container.innerHTML = ''; if (!values || values.length === 0) return; values.forEach(value => { const isChecked = checkAll ? 'checked' : (checkedState.has(value) ? (checkedState.get(value) ? 'checked' : '') : 'checked'); container.innerHTML += `<div class="filter-item"><input type="checkbox" id="chk-${container.id}-${value}" data-value="${value}" ${isChecked}><label for="chk-${container.id}-${value}">${value}</label></div>`; }); },
+        // ===================================
+        // ===== ✨ BUG FIXED HERE ✨ =====
+        // ===================================
+        updateFilterControls(container, values, checkAll = false) { 
+            const checkedState = new Map(); 
+            container.querySelectorAll('input[type="checkbox"]').forEach(chk => { 
+                checkedState.set(chk.dataset.value, chk.checked); 
+            }); 
+            container.innerHTML = ''; 
+            if (!values || values.length === 0) return; 
+            values.forEach(value => { 
+                const isChecked = checkAll ? 'checked' : (checkedState.has(value) ? (checkedState.get(value) ? 'checked' : '') : 'checked'); 
+                // [오타 수정] <div class.filter-item">  -> <div class="filter-item">
+                container.innerHTML += `<div class="filter-item"><input type="checkbox" id="chk-${container.id}-${value}" data-value="${value}" ${isChecked}><label for="chk-${container.id}-${value}">${value}</label></div>`; 
+            }); 
+        },
         updateStatsTable(groupedData) { 
             const { statsTableBody } = this.elements; 
             statsTableBody.innerHTML = ''; 
-            if (Object.keys(groupedData).length === 0) {s 
+            if (Object.keys(groupedData).length === 0) {
                 statsTableBody.innerHTML = '<tr><td colspan="6">No data selected. Check filters.</td></tr>'; // Colspan updated to 6
                 return; 
             } 
@@ -386,6 +397,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // ===== ✨ MODIFIED SECTION START (L-Idc Plotting) ✨ =====
         // ==================================================================
         createChart() {
+            // --- NEW: Get theme colors ---
+            const isDark = document.body.dataset.theme === 'dark';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            const textColor = isDark ? '#f1f5f9' : '#0f172a';
+            const tooltipBg = isDark ? '#334155' : '#ffffff';
+            const tooltipColor = isDark ? '#f1f5f9' : '#0f172a';
+            const annotationBg = isDark ? 'rgba(30, 41, 59, 0.85)' : 'rgba(255, 255, 255, 0.85)';
+            const annotationColor = textColor;
+            const annotationBorder = isDark ? '#475569' : '#999';
+
             const baseData = this.getFilteredData();
             const groupedData = this.groupData(baseData, 'centerLegCore');
             const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort();
@@ -414,13 +435,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     `${item.centerLegCore} / Shell ${item.outerCoreShell}`,
                     `L=${item.L_initial.toFixed(1)} μH`,
                     `Idc_70=${item.Idc_70.toFixed(1)} A, Idc_80=${item.Idc_80.toFixed(1)} A`,
-s                 `Gap=${item.Gap.toFixed(1)} mm, N=${item.N}`
+                    `Gap=${item.Gap.toFixed(1)} mm, N=${item.N}`
                     // FoM REMOVED
                 ];
             };
 
             const datasets = Object.keys(groupedData).map(group => {
-s             const coreIndex = allCenterLegs.indexOf(group);
+                const coreIndex = allCenterLegs.indexOf(group);
                 const color = this.defaultColors[coreIndex % this.defaultColors.length];
                 const pointStyle = this.pointStyles[coreIndex % this.pointStyles.length];
                 const data = groupedData[group].map(item => ({
@@ -429,71 +450,7 @@ s             const coreIndex = allCenterLegs.indexOf(group);
                     raw: item // 'raw' now contains rawIdc and rawInductance
                 }));
                 return {
-    source_quote: "filter-item"><input type="checkbox" id="chk-${container.id}-${value}" data-value="${value}" ${isChecked}><label for="chk-${container.id}-${value}">${value}</label></div>`; }); },
-        updateStatsTable(groupedData) { 
-            const { statsTableBody } = this.elements; 
-            statsTableBody.innerHTML = ''; 
-            if (Object.keys(groupedData).length === 0) {s 
-                statsTableBody.innerHTML = '<tr><td colspan="6">No data selected. Check filters.</td></tr>'; // Colspan updated to 6
-                return; 
-            } 
-            for (const group in groupedData) { 
-                const items = groupedData[group]; 
-                const calcStats = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; 
-                // REMOVED FoM
-                statsTableBody.innerHTML += `<tr><td><strong>${group}</strong></td><td>${items.length}</td><td>${calcStats(items.map(d => d.L_initial)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Idc_70)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Idc_80)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Gap)).toFixed(2)}</td></tr>`; 
-            } 
-        },
-        showStatus(msg, isError = false) { const { chartStatus } = this.elements; chartStatus.textContent = msg; chartStatus.style.display = 'block'; chartStatus.style.background = isError ? 'rgba(200, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.7)'; },
-        
-        // ==================================================================
-        // ===== ✨ MODIFIED SECTION START (L-Idc Plotting) ✨ =====
-        // ==================================================================
-        createChart() {
-            const baseData = this.getFilteredData();
-            const groupedData = this.groupData(baseData, 'centerLegCore');
-            const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort();
-            
-            if (this.chartInstance) {
-                this.chartInstance.destroy();
-            }
-
-            // Note: this.chartAnnotations is now initialized in app.init()
-
-            const ctx = this.elements.mainChart.getContext('2d');
-            ctx.clearRect(0, 0, this.elements.mainChart.width, this.elements.mainChart.height);
-            
-            if (!baseData.length) {
-                this.showStatus('No data to display.', true);
-                return;
-            }
-            this.showStatus('Generating chart...');
-
-            const { xAxis, yAxis } = this.elements;
-
-            // 툴팁과 클릭 레이블에 사용될 텍스트를 생성하는 헬퍼 함수입니다. (FoM REMOVED)
-            const getLabelText = (item) => {
-                if (!item) return '';
-                return [
-                    `${item.centerLegCore} / Shell ${item.outerCoreShell}`,
-                    `L=${item.L_initial.toFixed(1)} μH`,
-                    `Idc_70=${item.Idc_70.toFixed(1)} A, Idc_80=${item.Idc_80.toFixed(1)} A`,
-s                 `Gap=${item.Gap.toFixed(1)} mm, N=${item.N}`
-                    // FoM REMOVED
-                ];
-            };
-
-            const datasets = Object.keys(groupedData).map(group => {
-s             const coreIndex = allCenterLegs.indexOf(group);
-                const color = this.defaultColors[coreIndex % this.defaultColors.length];
-                const pointStyle = this.pointStyles[coreIndex % this.pointStyles.length];
-                const data = groupedData[group].map(item => ({
-                    x: item[xAxis.value],
-                    y: item[yAxis.value],
-                    raw: item // 'raw' now contains rawIdc and rawInductance
-                }));
-                return {
-                        label: group,
+                    label: group,
                     data,
                     backgroundColor: color,
                     borderColor: color,
@@ -513,34 +470,35 @@ s             const coreIndex = allCenterLegs.indexOf(group);
                 id: 'clickAnnotations',
                 afterDraw: (chart) => {
                     const ctx = chart.ctx;
-s                 ctx.save();
+                    ctx.save();
                     ctx.font = '12px Arial';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'bottom';
 
-s                 this.chartAnnotations.forEach(annotation => {
+                    this.chartAnnotations.forEach(annotation => {
                         const model = chart.getDatasetMeta(annotation.datasetIndex)?.data[annotation.index];
                         if (!model) return;
 
                         const x = model.x + 10;
                         const y = model.y;
                         const textLines = annotation.text;
-s                     const lineHeight = 14;
+                        const lineHeight = 14;
                         const textWidth = Math.max(...textLines.map(line => ctx.measureText(line).width));
                         
-                        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                        // 테마 적용
+                        ctx.fillStyle = annotationBg; 
                         ctx.fillRect(x - 3, y - (lineHeight * textLines.length) - 3, textWidth + 6, (lineHeight * textLines.length) + 6);
-                        ctx.strokeStyle = '#999';
+                        ctx.strokeStyle = annotationBorder;
                         ctx.lineWidth = 1;
-s                     ctx.strokeRect(x - 3, y - (lineHeight * textLines.length) - 3, textWidth + 6, (lineHeight * textLines.length) + 6);
+                        ctx.strokeRect(x - 3, y - (lineHeight * textLines.length) - 3, textWidth + 6, (lineHeight * textLines.length) + 6);
 
-                        ctx.fillStyle = '#333';
+                        ctx.fillStyle = annotationColor;
                         textLines.forEach((line, i) => {
                             ctx.fillText(line, x, y - (lineHeight * (textLines.length - 1 - i)));
                         });
                     });
                     ctx.restore();
-s             }
+                }
             };
 
             this.chartInstance = new Chart(this.elements.mainChart, {
@@ -581,7 +539,7 @@ s             }
                                 // --- ADD Annotation and Line ---
                                 this.chartAnnotations.push({
                                     datasetIndex,
-s                                 index,
+                                    index,
                                     text: getLabelText(item)
                                 });
 
@@ -594,28 +552,25 @@ s                                 index,
                                         label: lineLabel,
                                         data: lineData,
                                         type: 'line',
-s                                     borderColor: scatterColor,
+                                        borderColor: scatterColor,
                                         borderWidth: 2,
                                         borderDash: [5, 5],
                                         fill: false,
                                         pointRadius: 2,
-s                                     tension: 0.1,
+                                        tension: 0.1,
                                         xAxisID: 'xLidc', // Bind to new X-axis
 s                                     yAxisID: 'yLidc'  // Bind to new Y-axis
                                     };
 
                                     this.activeLineSeries.set(seriesKey, newLineSeries);
-s                                 this.chartInstance.data.datasets.push(newLineSeries);
+                                    this.chartInstance.data.datasets.push(newLineSeries);
                                 }
                             }
 
                             // Update axis visibility
                             const showLidcAxes = this.activeLineSeries.size > 0;
                             this.chartInstance.options.scales.xLidc.display = showLidcAxes;
-                            // ===================================
-                            // ===== ✨ TYPO FIXED HERE ✨ =====
-                            // ===================================
-                            this.chartInstance.options.scales.yLidc.display = showLidcAxes;s 
+                            this.chartInstance.options.scales.yLidc.display = showLidcAxes; 
 
                             this.chartInstance.update('none');
                         }
@@ -623,9 +578,16 @@ s                                 this.chartInstance.data.datase
                     plugins: {
                         legend: {
                             position: 'top',
-s                         labels: { usePointStyle: true, padding: 20 }
+                            labels: { 
+                                usePointStyle: true, 
+                                padding: 20,
+                                color: textColor // 테마 적용
+                            }
                         },
-              _           tooltip: {
+                        tooltip: {
+                            backgroundColor: tooltipBg, // 테마 적용
+                            titleColor: tooltipColor, // 테마 적용
+                            bodyColor: tooltipColor, // 테마 적용
                             callbacks: {
                                 label: (context) => {
                                 // Don't show complex tooltip for the L-Idc line itself
@@ -633,27 +595,72 @@ s                         labels: { usePointStyle: true, padding: 20
                                     return `${context.dataset.label}: (Idc: ${context.parsed.x}, L: ${context.parsed.y.toFixed(1)})`;
                                 }
                                     const item = context.raw?.raw;
-          _in: 0.1em;
-}
-
-/* Tooltip */
-.tooltip {
-    position: absolute;
-    background: var(--card-dark);
-    color: var(--text-primary-dark);
-    padding: 8px 12px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-medium);
-    font-size: 12px;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    z-index: 1000;
-}
-
-.tooltip-line {
-    display: block;
-    white-space: nowrap;
-}
-
-/* === END: Added/Modified Styles for UI Compatibility === */
+                                    return getLabelText(item);
+                                }
+                            }
+                        }
+                    },
+                    // --- NEW: Added secondary axes for L-Idc lines + Theme ---
+                    scales: {
+                        x: { // Main scatter X-axis (Bottom)
+                            type: 'linear',
+                            position: 'bottom',
+                            title: { display: true, text: xAxis.options[xAxis.selectedIndex].text, color: textColor }, 
+                            grid: { color: gridColor },
+                            ticks: { color: textColor }
+                        },
+                        y: { // Main scatter Y-axis (Left)
+                            type: 'linear',
+                            position: 'left',
+                            title: { display: true, text: yAxis.options[yAxis.selectedIndex].text, color: textColor }, 
+                            grid: { color: gridColor },
+                            ticks: { color: textColor }
+                        },
+                        xLidc: { // Secondary L-Idc X-axis (Top)
+                            type: 'linear',
+                            position: 'top',
+                            display: this.activeLineSeries.size > 0, // Show only if lines are active
+                            title: { display: true, text: 'Idc (A)', color: textColor },
+                            grid: { drawOnChartArea: false }, // No grid lines
+                            ticks: { color: textColor }
+                        },
+                        yLidc: { // Secondary L-Idc Y-axis (Right)
+                            type: 'linear',
+                            position: 'right',
+                            display: this.activeLineSeries.size > 0, // Show only if lines are active
+                            title: { display: true, text: 'Inductance (uH)', color: textColor },
+                            grid: { drawOnChartArea: false }, // No grid lines
+                            ticks: { color: textColor }
+                        }
+                    }
+                }
+            });
+            setTimeout(() => this.elements.chartStatus.style.display = 'none', 1000);
+        },
+        // ==================================================================
+        // ===== ✨ MODIFIED SECTION END ✨ =====
+        // ==================================================================
+        exportCSV() { 
+            const data = this.getFilteredData(); 
+            if (data.length === 0) { 
+                alert('No data selected to export.'); 
+                return; 
+            } 
+            // REMOVED FoM
+            const headers = "CenterLegCore,OuterCoreShell,L_initial(uH),Idc_70%(A),Idc_80%(A),Gap(mm),N";s 
+            // REMOVED FoM
+            const rows = data.map(d => `${d.centerLegCore},${d.outerCoreShell},${d.L_initial},${d.Idc_70},${d.Idc_80},${d.Gap},${d.N}`); 
+            const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n"); 
+            const encodedUri = encodeURI(csvContent);s 
+            const link = document.createElement("a"); 
+            link.setAttribute("href", encodedUri); 
+            link.setAttribute("download", "inductance_data_export.csv"); 
+            document.body.appendChild(link); 
+            link.click(); 
+            document.body.removeChild(link);s 
+        },
+        exportPNG() { if (!this.chartInstance || !this.getFilteredData().length) { alert('No chart available to export.'); return; } const url = this.chartInstance.toBase64Image(); const link = document.createElement('a'); link.download = 'inductance_chart.png'; link.href = url; link.click(); }
+    };
+    app.init();
+    // --- END: Analysis App Logic ---
+});
