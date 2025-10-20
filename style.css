@@ -116,49 +116,49 @@ body::before {
 }
 
 .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--text-secondary);
-      text-decoration: none;
-      padding: 0.75rem 1rem;
-      border-radius: var(--radius);
-      transition: var(--transition);
-      font-weight: 500;
-    }
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      transition: var(--transition);
+      font-weight: 500;
+    }
 
-    .back-btn:hover {
-      color: var(--primary);
-      background: rgba(37, 99, 235, 0.1);
-    }
+    .back-btn:hover {
+      color: var(--primary);
+      background: rgba(37, 99, 235, 0.1);
+    }
 
-    .page-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
 .theme-toggle {
-      background: none;
-      border: 2px solid var(--border);
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: var(--transition);
-      color: var(--text-secondary);
-    }
+      background: none;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--text-secondary);
+    }
 
-    .theme-toggle:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      transform: scale(1.1);
-    }
+    .theme-toggle:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: scale(1.1);
+    }
 
 /* Main Content */
 .container {
