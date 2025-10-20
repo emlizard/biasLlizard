@@ -1,5 +1,27 @@
+// --- [수정됨] START: Theme Toggle Logic ---
+// HTML에서 onclick="toggleTheme()"을 사용하므로, 전역 함수로 변경합니다.
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', newTheme);
+
+    // 아이콘 변경 로직 추가
+    const icon = document.getElementById('themeIcon');
+    if (icon) {
+        if (newTheme === 'dark') {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        } else {
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+        }
+    }
+}
+// --- [수정됨] END: Theme Toggle Logic ---
+
+
 // --- START: Calculation Logic (Interpolation/Extrapolation) ---
-// (이 부분은 HTML 바깥에 있어도 됩니다)
 class CubicSpline {
     constructor(x, y) { this.x = [...x]; this.y = [...y]; this.n = x.length; this.calculateCoefficients(); }
     calculateCoefficients() { 
@@ -113,20 +135,10 @@ function findIdcForTarget(idcValues, inductanceValues, targetPercentage) {
 // --- END: Calculation Logic ---
 
 // --- START: Main Application Logic ---
-// 모든 코드를 DOMContentLoaded 이벤트 리스너로 감싸서 HTML 로드 후 스크립트가 실행되도록 합니다.
+// 테마 로직을 제외한 나머지는 DOM이 로드된 후 실행되어야 합니다.
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- START: Theme Toggle Logic ---
-    // (오류 수정을 위해 이곳으로 이동)
-    document.getElementById('themeToggle').addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', newTheme);
-    });
-    // --- END: Theme Toggle Logic ---
-
-
-    // [수정됨] parseRawData 함수: Gap(mm) 데이터를 읽도록 수정
+    // (parseRawData, calculateAndBuildFinalData, formatForAnalysisTool - unchanged)
     function parseRawData(text) {
         const blocks = text.trim().split(/\n\s*\n/);
         const allSeries = [];
@@ -180,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 errors.push(`Block ${blockIndex + 1} (${centerLegName}): WARNING - 'L_initial' row not found. Using Idc=0 value.`);
             }
 
-            // --- [수정 시작] Gap(mm) 데이터를 읽는 로직 추가 ---
             let gapValues = [];
             const gapLine = lines.slice(tableEndIndex).find(l => l.toLowerCase().startsWith('gap(mm)'));
             if (gapLine) {
@@ -188,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 errors.push(`Block ${blockIndex + 1} (${centerLegName}): WARNING - 'Gap(mm)' row not found. Defaulting to 0.`);
             }
-            // --- [수정 끝] ---
             
             if (idcValues.length < 2) {
                 errors.push(`Block ${blockIndex + 1} (${centerLegName}): Not enough data rows.`);
@@ -203,9 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     idc: idcValues,
                     inductance: inductanceData[i-1],
                     lInitialOverride: lInitialOverrideValues[i-1],
-                    // --- [수정 시작] Gap 값을 객체에 추가 ---
                     gapValue: gapValues[i-1] !== undefined && !isNaN(gapValues[i-1]) ? gapValues[i-1] : 0
-                    // --- [수정 끝] ---
                 });
             }
         });
@@ -214,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return allSeries;
     }
 
-    // [수정됨] calculateAndBuildFinalData 함수: 하드코딩된 Gap: 0 대신 실제 Gap 값 사용
     function calculateAndBuildFinalData(series) {
         return series.map(s => {
             const idc_70 = findIdcForTarget(s.idc, s.inductance, 70);
@@ -230,9 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 L_initial: final_L_initial,
                 Idc_70: idc_70,
                 Idc_80: idc_80,
-                // --- [수정 시작] 하드코딩된 'Gap: 0'을 's.gapValue'로 변경 ---
                 Gap: s.gapValue,
-                // --- [수정 끝] ---
                 N: s.nValue,
                 FoM: idc_80 ? final_L_initial * idc_80 : 0,
             };
@@ -253,14 +258,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const l_initials = items.map(d => d.L_initial.toFixed(2)).join('\t');
             const idc_70s = items.map(d => d.Idc_70.toFixed(2)).join('\t');
             const idc_80s = items.map(d => d.Idc_80.toFixed(2)).join('\t');
-            const gaps = items.map(d => d.Gap.toFixed(1)).join('\t'); // Gap 값도 포맷팅
+            const gaps = items.map(d => d.Gap.toFixed(1)).join('\t');
             const ns = items.map(d => d.N).join('\t');
             
             output += `${groupName}\t${shells}\n`;
             output += `L_initial(uH)\t${l_initials}\n`;
             output += `Idc_70%(A)\t${idc_70s}\n`;
             output += `Idc_80%(A)\t${idc_80s}\n`;
-            output += `Gap(mm)\t${gaps}\n`; // "Gap(mm)"으로 생성
+            output += `Gap(mm)\t${gaps}\n`;
             output += `N\t${ns}\n\n`;
         }
         return output;
@@ -268,13 +273,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let rawSeriesData = [];
 
-    // --- [수정됨] START: 'processBtn' 이벤트 리스너 오류 수정 ---
-    // 'processBtn' 요소를 찾아서 변수에 할당합니다.
     const processButton = document.getElementById('processBtn');
     
-    // 요소를 성공적으로 찾았는지 확인합니다.
     if (processButton) {
-        // 요소가 존재할 경우에만 이벤트 리스너를 추가합니다.
         processButton.addEventListener('click', () => {
             const rawText = document.getElementById('rawInput').value;
             if (!rawText.trim()) { alert('Please paste raw data first.'); return; }
@@ -289,10 +290,8 @@ document.addEventListener('DOMContentLoaded', () => {
             app.updateAll();
         });
     } else {
-        // 요소를 찾지 못했을 경우, 콘솔에 에러를 기록합니다. (스크립트가 멈추지는 않습니다)
         console.error("Error: Could not find element with ID 'processBtn'.");
     }
-    // --- [수정됨] END: 'processBtn' 이벤트 리스너 오류 수정 ---
 
 
     const app = {
@@ -300,14 +299,14 @@ document.addEventListener('DOMContentLoaded', () => {
         chartInstance: null,
         idcInductanceChartInstance: null,
         parsedData: [],
-        rawSeries: [], // rawSeries 데이터를 저장할 배열 추가
+        rawSeries: [],
         defaultColors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
         pointStyles: ['circle', 'rect', 'triangle', 'rectRot', 'star', 'cross', 'rectRounded'],
         
         init() { 
             this.cacheElements(); 
             this.addEventListeners(); 
-            this.rawSeries = rawSeriesData; // app 객체에 rawSeriesData 연결
+            this.rawSeries = rawSeriesData;
         },
         cacheElements() { 
             const ids = [ 
@@ -315,13 +314,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 'mainChart', 'statsTableBody', 'dataCount', 'chartStatus', 'btnExportCSV', 'btnExportPNG', 
                 'parsedDataTableBody', 'selectAllCenterLegs', 'deselectAllCenterLegs', 
                 'selectAllOuterCores', 'deselectAllOuterCores',
-                'idcInductanceChart', 'idcInductanceChartStatus' // 새 차트 ID 추가
+                'idcInductanceChart', 'idcInductanceChartStatus'
             ]; 
             ids.forEach(id => this.elements[id] = document.getElementById(id)); 
         },
+        // [수정됨] addEventListeners: 'themeToggle' 관련 코드를 제거했습니다.
         addEventListeners() { 
             const controlsToRedrawChart = ['xAxis', 'yAxis', 'centerLegFilterControls', 'outerCoreFilterControls']; 
-            // 'null'일 수 있는 요소에 이벤트 리스너를 추가하기 전에 확인
             controlsToRedrawChart.forEach(id => {
                 if (this.elements[id]) {
                     this.elements[id].addEventListener('change', () => this.updateUI());
@@ -364,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         parseData() { 
-            if (!this.elements.dataInput) return []; // dataInput이 없으면 빈 배열 반환
+            if (!this.elements.dataInput) return [];
             const lines = this.elements.dataInput.value.trim().split('\n'); 
             const result = []; 
             let currentBlock = this.createEmptyBlock(); 
@@ -393,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!trimmedLine) continue; 
                 const parts = trimmedLine.split(/\s+/); 
                 const label = parts[0].toLowerCase(); 
-                if (label.startsWith('clc_') || label.startsWith('block:')) { // 'clc_' 또는 'block:'으로 시작하는 경우
+                if (label.startsWith('clc_') || label.startsWith('block:')) {
                     flushBlock(); 
                     currentBlock.centerLegCore = parts[0]; 
                     currentBlock.outerCoreShells = parts.slice(1); 
@@ -403,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentBlock.idc70Values = parts.slice(1).map(parseFloat); 
                 } else if (label.startsWith('idc_80%')) { 
                     currentBlock.idc80Values = parts.slice(1).map(parseFloat); 
-                } else if (label.startsWith('gap')) { // 'gap'으로 시작하는 경우 (예: 'gap(mm)')
+                } else if (label.startsWith('gap')) {
                     currentBlock.gapValues = parts.slice(1).map(parseFloat); 
                 } else if (label.startsWith('n')) { 
                     currentBlock.nValues = parts.slice(1).map(parseFloat); 
@@ -420,14 +419,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (selectedCenterLegs.size === 0 || selectedOuterShells.size === 0) return []; 
             return this.parsedData.filter(d => selectedCenterLegs.has(d.centerLegCore) && selectedOuterShells.has(d.outerCoreShell)); 
         },
-        // rawSeries 데이터를 필터링하는 함수 추가
         getFilteredRawSeries() {
             if (!this.elements.centerLegFilterControls || !this.elements.outerCoreFilterControls) return [];
             const selectedCenterLegs = new Set(Array.from(this.elements.centerLegFilterControls.querySelectorAll('input:checked')).map(chk => chk.dataset.value));
             const selectedOuterShells = new Set(Array.from(this.elements.outerCoreFilterControls.querySelectorAll('input:checked')).map(chk => chk.dataset.value));
             if (selectedCenterLegs.size === 0 || selectedOuterShells.size === 0) return [];
             
-            // app.rawSeries (전역 rawSeriesData에서 복사됨)를 필터링
             return this.rawSeries.filter(s => 
                 selectedCenterLegs.has(`${s.centerLegCoreName}_N${s.nValue}`) && 
                 selectedOuterShells.has(s.model)
@@ -441,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, {}),
         updateAll() { 
             this.parsedData = this.parseData(); 
-            this.rawSeries = rawSeriesData; // processBtn 클릭 시 rawSeriesData를 app.rawSeries에 동기화
+            this.rawSeries = rawSeriesData;
             const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort(); 
             const allOuterShells = [...new Set(this.parsedData.map(d => d.outerCoreShell))].sort((a, b) => a - b); 
             this.updateFilterControls(this.elements.centerLegFilterControls, allCenterLegs, true); 
@@ -454,11 +451,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const groupedData = this.groupData(baseData, 'centerLegCore'); 
             this.updateStatsTable(groupedData); 
             this.createChart(); 
-            this.createIdcInductanceChart(); // 새 차트 업데이트 호출
+            this.createIdcInductanceChart();
         },
         updateParsedDataTable() { 
             const { parsedDataTableBody, dataCount } = this.elements; 
-            if (!parsedDataTableBody || !dataCount) return; // 요소 확인
+            if (!parsedDataTableBody || !dataCount) return;
             parsedDataTableBody.innerHTML = ''; 
             dataCount.textContent = `Total of ${this.parsedData.length} data points recognized`; 
             if (this.parsedData.length === 0) { 
@@ -472,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
             parsedDataTableBody.innerHTML = rows; 
         },
         updateFilterControls(container, values, checkAll = false) { 
-            if (!container) return; // 컨테이너 확인
+            if (!container) return;
             const checkedState = new Map(); 
             container.querySelectorAll('input[type="checkbox"]').forEach(chk => { 
                 checkedState.set(chk.dataset.value, chk.checked); 
@@ -486,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         updateStatsTable(groupedData) { 
             const { statsTableBody } = this.elements; 
-            if (!statsTableBody) return; // 요소 확인
+            if (!statsTableBody) return;
             statsTableBody.innerHTML = ''; 
             if (Object.keys(groupedData).length === 0) { 
                 statsTableBody.innerHTML = '<tr><td colspan="7">No data selected. Check filters.</td></tr>'; 
@@ -500,23 +497,20 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         showStatus(msg, isError = false, chartType = 'main') { 
             const statusElement = chartType === 'idcInductance' ? this.elements.idcInductanceChartStatus : this.elements.chartStatus; 
-            if (!statusElement) return; // 요소 확인
+            if (!statusElement) return;
             statusElement.textContent = msg; 
             statusElement.style.display = 'block'; 
             statusElement.style.background = isError ? 'rgba(200, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.7)'; 
         },
 
-        // [수정됨] createChart: 폰트 크기 2배 증가
         createChart() {
-            if (!this.elements.mainChart) return; // 요소 확인
+            if (!this.elements.mainChart) return;
             const baseData = this.getFilteredData();
             const groupedData = this.groupData(baseData, 'centerLegCore');
             const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort();
             
-            // --- [수정 시작] 폰트 크기 변수 설정 ---
             const baseFontSize = 20;
             const titleFontSize = 22;
-            // --- [수정 끝] ---
 
             if (this.chartInstance) {
                 this.chartInstance.destroy();
@@ -534,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.showStatus('Generating chart...');
 
             const { xAxis, yAxis } = this.elements;
-            if (!xAxis || !yAxis) return; // 요소 확인
+            if (!xAxis || !yAxis) return;
 
             const getLabelText = (item) => {
                 if (!item) return '';
@@ -572,9 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 afterDraw: (chart) => {
                     const ctx = chart.ctx;
                     ctx.save();
-                    // --- [수정 시작] 폰트 크기 2배 증가 ---
-                    ctx.font = '40px Inter'; // 20px -> 40px
-                    // --- [수정 끝] ---
+                    ctx.font = '40px Inter';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'bottom';
 
@@ -585,9 +577,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const x = model.x + 10;
                         const y = model.y;
                         const textLines = annotation.text;
-                        // --- [수정 시작] 폰트 크기 2배 증가 ---
-                        const lineHeight = 28; // 14 -> 28
-                        // --- [수정 끝] ---
+                        const lineHeight = 28;
                         const textWidth = Math.max(...textLines.map(line => ctx.measureText(line).width));
                         
                         ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
@@ -633,19 +623,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             this.chartInstance.update('none');
                         }
                     },
-                    // --- [수정 시작] 폰트 크기 2배 증가 ---
                     plugins: {
                         legend: {
                             position: 'top',
                             labels: { 
                                 usePointStyle: true, 
                                 padding: 20,
-                                font: { size: baseFontSize } // 폰트 크기 적용
+                                font: { size: baseFontSize }
                             }
                         },
                         tooltip: {
-                            titleFont: { size: titleFontSize }, // 폰트 크기 적용
-                            bodyFont: { size: baseFontSize }, // 폰트 크기 적용
+                            titleFont: { size: titleFontSize },
+                            bodyFont: { size: baseFontSize },
                             callbacks: {
                                 label: (context) => {
                                     const item = context.raw?.raw;
@@ -656,30 +645,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     scales: {
                         x: { 
-                            title: { display: true, text: xAxis.options[xAxis.selectedIndex].text, font: { size: titleFontSize } }, // 폰트 크기 적용
-                            ticks: { font: { size: baseFontSize } } // 폰트 크기 적용
+                            title: { display: true, text: xAxis.options[xAxis.selectedIndex].text, font: { size: titleFontSize } },
+                            ticks: { font: { size: baseFontSize } }
                         },
                         y: { 
-                            title: { display: true, text: yAxis.options[yAxis.selectedIndex].text, font: { size: titleFontSize } }, // 폰트 크기 적용
-                            ticks: { font: { size: baseFontSize } } // 폰트 크기 적용
+                            title: { display: true, text: yAxis.options[yAxis.selectedIndex].text, font: { size: titleFontSize } },
+                            ticks: { font: { size: baseFontSize } }
                         }
                     }
-                    // --- [수정 끝] ---
                 }
             });
             setTimeout(() => { if (this.elements.chartStatus) this.elements.chartStatus.style.display = 'none'; }, 1000);
         },
 
-        // [수정됨] createIdcInductanceChart: 폰트 크기 2배 증가
         createIdcInductanceChart() {
-            if (!this.elements.idcInductanceChart) return; // 요소 확인
+            if (!this.elements.idcInductanceChart) return;
             const filteredRawSeries = this.getFilteredRawSeries();
             const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort();
             
-            // --- [수정 시작] 폰트 크기 변수 설정 ---
             const baseFontSize = 20;
             const titleFontSize = 22;
-            // --- [수정 끝] ---
             
             if (this.idcInductanceChartInstance) {
                 this.idcInductanceChartInstance.destroy();
@@ -734,9 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 afterDraw: (chart) => {
                     const ctx = chart.ctx;
                     ctx.save();
-                    // --- [수정 시작] 폰트 크기 2배 증가 ---
-                    ctx.font = '40px Inter'; // 20px -> 40px
-                    // --- [수정 끝] ---
+                    ctx.font = '40px Inter';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'bottom';
 
@@ -747,9 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const x = model.x + 10;
                         const y = model.y;
                         const textLines = annotation.text;
-                        // --- [수정 시작] 폰트 크기 2배 증가 ---
-                        const lineHeight = 28; // 14 -> 28
-                        // --- [수정 끝] ---
+                        const lineHeight = 28;
                         const textWidth = Math.max(...textLines.map(line => ctx.measureText(line).width));
                         
                         ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
@@ -795,19 +776,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             this.idcInductanceChartInstance.update('none');
                         }
                     },
-                    // --- [수정 시작] 폰트 크기 2배 증가 ---
                     plugins: {
                         legend: {
                             position: 'top',
                             labels: { 
                                 usePointStyle: true, 
                                 padding: 20,
-                                font: { size: baseFontSize } // 폰트 크기 적용
+                                font: { size: baseFontSize }
                             }
                         },
                         tooltip: {
-                            titleFont: { size: titleFontSize }, // 폰트 크기 적용
-                            bodyFont: { size: baseFontSize }, // 폰트 크기 적용
+                            titleFont: { size: titleFontSize },
+                            bodyFont: { size: baseFontSize },
                             callbacks: {
                                 label: (context) => {
                                     const { series, index } = context.raw?.raw;
@@ -818,15 +798,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     scales: {
                         x: { 
-                            title: { display: true, text: 'Idc (A)', font: { size: titleFontSize } }, // 폰트 크기 적용
-                            ticks: { font: { size: baseFontSize } } // 폰트 크기 적용
+                            title: { display: true, text: 'Idc (A)', font: { size: titleFontSize } },
+                            ticks: { font: { size: baseFontSize } }
                         },
                         y: { 
-                            title: { display: true, text: 'Inductance (μH)', font: { size: titleFontSize } }, // 폰트 크기 적용
-                            ticks: { font: { size: baseFontSize } } // 폰트 크기 적용
+                            title: { display: true, text: 'Inductance (μH)', font: { size: titleFontSize } },
+                            ticks: { font: { size: baseFontSize } }
                         }
                     }
-                    // --- [수정 끝] ---
                 }
             });
             setTimeout(() => { if (this.elements.idcInductanceChartStatus) this.elements.idcInductanceChartStatus.style.display = 'none'; }, 1000);
