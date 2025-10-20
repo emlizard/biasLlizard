@@ -1,31 +1,32 @@
 <!DOCTYPE html>
-<html lang="ko"><head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Integrated Inductance Analysis Tool (L_initial Logic)</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-    
-<link rel="stylesheet" href="style.css"></head>
-<body>
-	<header class="header">
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Inductance Analysis Tool (L_initial Logic)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="light"> <header class="header">
     <div class="header-content">
       <div class="logo-section">
         <a href="https://emlizard.github.io/main-page/" class="back-btn">
-          <i class="fas fa-arrow-left"></i>
           ← Back to Calculators
         </a>
         <div class="page-title">🚀 Integrated Inductance Analysis Tool</div>
       </div>
       <button class="theme-toggle" onclick="toggleTheme()">
-        <i class="fas fa-moon" id="themeIcon"></i>
-      </button>
+        <i class="fas fa-moon" id="themeIcon"></i> </button>
     </div>
   </header>
-    <div class="container">
-                
-        <div class="section">
-            <h2 class="section-title">Step 1: Paste Raw Data</h2>
-            <textarea id="rawInput" class="data-input" placeholder="이곳에 데이터를 붙여넣으세요.
+    <div class="container">
+          
+        <div class="card"> 
+            <h2 class="card-title">Step 1: Paste Raw Data</h2>
+            <textarea id="rawInput" class="input-field" style="min-height: 250px;" placeholder="이곳에 데이터를 붙여넣으세요.
 L_initial 행과 Gap(mm) 행을 포함해야 합니다.
 
 BLOCK: CLC_6x22x4.1R1, N: 40(6T_0.1x50p)								
@@ -125,72 +126,100 @@ Gap(mm)	3.1
 L_initial	181.2							
 
 "></textarea>
-            <div style="text-align: center; margin-top: 20px;">
-                <button id="processBtn" class="btn">📊 Process and Analyze Data</button>
-            </div>
-             <div id="processingErrors" style="margin-top:15px; font-size:13px; color:#c00; font-family:'Courier New', monospace;"></div>
-        </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="processBtn" class="btn btn-full">📊 Process and Analyze Data</button>
+            </div>
+             <div id="processingErrors" class="processing-errors"></div> </div>
 
-        <textarea id="dataInput" class="data-input hidden"></textarea>
+        <textarea id="dataInput" class="input-field hidden"></textarea> <div id="analysisContainer" class="hidden">
+            <hr class="divider"> <div class="hero"> <h1>Step 2: Analysis Results</h1>
+            </div>
 
-        <div id="analysisContainer" class="hidden">
-            <hr style="margin: 40px 0;">
-            <h2 class="section-title" style="text-align: center; font-size: 24px; border-bottom: none;">Step 2: Analysis Results</h2>
-            <div class="section">
-                <h2 class="section-title">Parsed Data Confirmation</h2>
-                <div id="dataCount" class="data-count">Waiting for data...</div>
-                <div class="table-wrapper">
-                    <table class="stats-table" id="parsedDataTable">
-                        <thead>
-                            <tr>
-                                                                <th>Center Leg</th><th>Outer Shell</th><th>L_initial(uH)</th><th>Idc_70%(A)</th><th>Idc_80%(A)</th><th>Gap(mm)</th><th>N</th>
-                            </tr>
-                        </thead>
-                        <tbody id="parsedDataTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="section">
-                <h2 class="section-title">Center Leg Core Filter</h2>
-                <div class="filter-actions">
-                    <button class="btn-filter" id="selectAllCenterLegs">Select All</button>
-                    <button class="btn-filter" id="deselectAllCenterLegs">Deselect All</button>
-                </div>
-                <div class="filter-controls" id="centerLegFilterControls"></div>
-            </div>
-            <div class="section">
-                <h2 class="section-title">Outer Core Shell Filter</h2>
-                <div class="filter-actions">
-                    <button class="btn-filter" id="selectAllOuterCores">Select All</button>
-                    <button class="btn-filter" id="deselectAllOuterCores">Deselect All</button>
-                </div>
-                <div class="filter-controls" id="outerCoreFilterControls"></div>
-            </div>
-            <div class="section">
-                <h2 class="section-title">Analysis Options</h2>
-                <div class="controls">
-                                        <div class="control-group"><label for="xAxis">X-Axis</label><select id="xAxis"><option value="Idc_80">Idc 80% (A)</option><option value="Idc_70">Idc 70% (A)</option><option value="L_initial">Inductance (μH)</option><option value="Gap">Gap (mm)</option></select></div>
-                    <div class="control-group"><label for="yAxis">Y-Axis</label><select id="yAxis"><option value="L_initial">Inductance (μH)</option><option value="Idc_80">Idc 80% (A)</option><option value="Idc_70">Idc 70% (A)</option><option value="Gap">Gap (mm)</option></select></div>
-                    <div class="control-group"><label>&nbsp;</label><button class="btn btn-secondary" id="btnExportCSV">Export Selected Data to CSV</button></div>
-                    <div class="control-group"><label>&nbsp;</label><button class="btn btn-secondary" id="btnExportPNG">Export Chart to PNG</button></div>
-                </div>
-            </div>
-            <div class="section">
-                <h2 class="section-title">Analysis Chart</h2>
-                <div class="chart-container"><canvas id="mainChart"></canvas><div id="chartStatus">Loading...</div></div>
-            </div>
-            <div class="section">
-                <h2 class="section-title">Statistics Summary (Based on selected data)</h2>
-                <div class="table-wrapper" style="max-height: none;">
-                    <table class="stats-table" id="statsTable">
-                                                <thead><tr><th>Group (Center Leg)</th><th>Count</th><th>L Avg (μH)</th><th>Idc_70% Avg (A)</th><th>Idc_80% Avg (A)</th><th>Gap Avg (mm)</th></tr></thead>
-                        <tbody id="statsTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+            <div class="card">
+                <h2 class="card-title">Parsed Data Confirmation</h2>
+                <div id="dataCount" class="data-count">Waiting for data...</div>
+                <div class="table-wrapper">
+                    <table class="stats-table" id="parsedDataTable">
+                        <thead>
+                            <tr>
+                                <th>Center Leg</th><th>Outer Shell</th><th>L_initial(uH)</th><th>Idc_70%(A)</th><th>Idc_80%(A)</th><th>Gap(mm)</th><th>N</th>
+                            </tr>
+                        </thead>
+                        <tbody id="parsedDataTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="grid grid-2"> <div class="card">
+                    <h2 class="card-title">Center Leg Core Filter</h2>
+                    <div class="filter-actions">
+                        <button class="btn-filter" id="selectAllCenterLegs">Select All</button>
+                        <button class="btn-filter" id="deselectAllCenterLegs">Deselect All</button>
+                    </div>
+                    <div class="filter-controls" id="centerLegFilterControls"></div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">Outer Core Shell Filter</h2>
+                    <div class="filter-actions">
+                        <button class="btn-filter" id="selectAllOuterCores">Select All</button>
+                        <button class="btn-filter" id="deselectAllOuterCores">Deselect All</button>
+                    </div>
+                    <div class="filter-controls" id="outerCoreFilterControls"></div>
+                </div>
+            </div>
 
+            <div class="card">
+                <h2 class="card-title">Analysis Options</h2>
+                <div class="grid grid-2"> <div class="input-group">
+                        <label for="xAxis" class="input-label">X-Axis</label>
+                        <select id="xAxis" class="input-field">
+                            <option value="Idc_80">Idc 80% (A)</option>
+                            <option value="Idc_70">Idc 70% (A)</option>
+                            <option value="L_initial">Inductance (μH)</option>
+                            <option value="Gap">Gap (mm)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="yAxis" class="input-label">Y-Axis</label>
+                        <select id="yAxis" class="input-field">
+                            <option value="L_initial">Inductance (μH)</option>
+                            <option value="Idc_80">Idc 80% (A)</option>
+                            <option value="Idc_70">Idc 70% (A)</option>
+                            <option value="Gap">Gap (mm)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <button class="btn btn-secondary btn-full" id="btnExportCSV">Export Selected Data to CSV</button>
+                    </div>
+                    <div class="input-group">
+                        <button class="btn btn-secondary btn-full" id="btnExportPNG">Export Chart to PNG</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Analysis Chart</h2>
+                <div class="chart-wrapper" style="height:500px;"> 
+                    <canvas id="mainChart"></canvas>
+                    <div id="chartStatus">Loading...</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Statistics Summary (Based on selected data)</h2>
+                <div class="table-wrapper" style="max-height: none;">
+                    <table class="stats-table" id="statsTable">
+                        <thead>
+                            <tr><th>Group (Center Leg)</th><th>Count</th><th>L Avg (μH)</th><th>Idc_70% Avg (A)</th><th>Idc_80% Avg (A)</th><th>Gap Avg (mm)</th></tr>
+                        </thead>
+                        <tbody id="statsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-
-<script src="script.js"></script></body></html>
+<script src="script.js"></script>
+</body>
+</html>
