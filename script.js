@@ -1,9 +1,5 @@
 // --- START: Theme Toggle Logic ---
-document.getElementById('themeToggle').addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', newTheme);
-});
+// [수정됨] 이 로직은 아래의 'DOMContentLoaded' 내부로 이동되었습니다.
 
 // --- START: Calculation Logic (Interpolation/Extrapolation) ---
 class CubicSpline {
@@ -120,6 +116,17 @@ function findIdcForTarget(idcValues, inductanceValues, targetPercentage) {
 
 // --- START: Main Application Logic ---
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- [수정됨] START: Theme Toggle Logic ---
+    // 오류 방지를 위해 DOMContentLoaded 이벤트 리스너 내부로 코드를 이동시켰습니다.
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+    });
+    // --- [수정됨] END: Theme Toggle Logic ---
+
+
     // [수정됨] parseRawData 함수: Gap(mm) 데이터를 읽도록 수정
     function parseRawData(text) {
         const blocks = text.trim().split(/\n\s*\n/);
