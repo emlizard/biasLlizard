@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 gapValues = gapLine.trim().split(/\s+/).slice(1).map(parseFloat);
             } else {
                 errors.push(`Block ${blockIndex + 1} (${centerLegName}): WARNING - 'Gap(mm)' row not found. Using 0.`);
-F         }
+            }
 
             for (let i = 1; i < headers.length; i++) {
                 const currentIdc = allIdcValues[i-1] || [];
@@ -315,7 +315,7 @@ F         }
             }); 
             parsedDataTableBody.innerHTML = rows; 
         },
-        updateFilterControls(container, values, checkAll = false) { const checkedState = new Map(); container.querySelectorAll('input[type="checkbox"]').forEach(chk => { checkedState.set(chk.dataset.value, chk.checked); }); container.innerHTML = ''; if (!values || values.length === 0) return; values.forEach(value => { const isChecked = checkAll ? 'checked' : (checkedState.has(value) ? (checkedState.get(value) ? 'checked' : '') : 'checked'); container.innerHTML += `<div class="filter-item"><input type="checkbox" id="chk-${container.id}-${value}" data-value="${value}" ${isChecked}><label for="chk-${container.id}-${value}">${value}</label></div>`; }); },
+        updateFilterControls(container, values, checkAll = false) { const checkedState = new Map(); container.querySelectorAll('input[type="checkbox"]').forEach(chk => { checkedState.set(chk.dataset.value, chk.checked); }); container.innerHTML = ''; if (!values || values.length === 0) return; values.forEach(value => { const isChecked = checkAll ? 'checked' : (checkedState.has(value) ? (checkedState.get(value) ? 'checked' : '') : 'checked'); container.innerHTML += `<div class.filter-item"><input type="checkbox" id="chk-${container.id}-${value}" data-value="${value}" ${isChecked}><label for="chk-${container.id}-${value}">${value}</label></div>`; }); },
         updateStatsTable(groupedData) { 
             const { statsTableBody } = this.elements; 
             statsTableBody.innerHTML = ''; 
@@ -423,7 +423,7 @@ F         }
                         ctx.fillStyle = '#333';
                         textLines.forEach((line, i) => {
                             ctx.fillText(line, x, y - (lineHeight * (textLines.length - 1 - i)));
-                  S     });
+                        });
                     });
                     ctx.restore();
                 }
@@ -498,7 +498,10 @@ F         }
                             // Update axis visibility
                             const showLidcAxes = this.activeLineSeries.size > 0;
                             this.chartInstance.options.scales.xLidc.display = showLidcAxes;
-                            this.chartInstance.options.scales.yLidc.display = showLidcaAxes;
+                            // ===================================
+                            // ===== ✨ TYPO FIXED HERE ✨ =====
+                            // ===================================
+                            this.chartInstance.options.scales.yLidc.display = showLidcAxes; 
 
                             this.chartInstance.update('none');
                         }
@@ -508,7 +511,7 @@ F         }
                             position: 'top',
                             labels: { usePointStyle: true, padding: 20 }
                         },
-                        tooltip: {
+              _           tooltip: {
                             callbacks: {
                                 label: (context) => {
                                 // Don't show complex tooltip for the L-Idc line itself
@@ -519,7 +522,7 @@ F         }
                                     return getLabelText(item);
                                 }
                             }
-                        }
+s                     }
                     },
                     // --- NEW: Added secondary axes for L-Idc lines ---
                     scales: {
@@ -539,15 +542,15 @@ F         }
                             display: this.activeLineSeries.size > 0, // Show only if lines are active
                             title: { display: true, text: 'Idc (A)' },
                             grid: { drawOnChartArea: false } // No grid lines
-                _       },
+                        },
                         yLidc: { // Secondary L-Idc Y-axis (Right)
                             type: 'linear',
-                            position: 'right',
+                             position: 'right',
                             display: this.activeLineSeries.size > 0, // Show only if lines are active
                             title: { display: true, text: 'Inductance (uH)' },
                             grid: { drawOnChartArea: false } // No grid lines
                         }
-                  _}
+                    }
                 }
             });
             setTimeout(() => this.elements.chartStatus.style.display = 'none', 1000);
@@ -575,6 +578,7 @@ F         }
             document.body.removeChild(link); 
         },
         exportPNG() { if (!this.chartInstance || !this.getFilteredData().length) { alert('No chart available to export.'); return; } const url = this.chartInstance.toBase64Image(); const link = document.createElement('a'); link.download = 'inductance_chart.png'; link.href = url; link.click(); }
+section: 1
     };
     app.init();
     // --- END: Analysis App Logic ---
