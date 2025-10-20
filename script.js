@@ -1,7 +1,5 @@
-// --- START: Theme Toggle Logic ---
-// [수정됨] 이 로직은 아래의 'DOMContentLoaded' 내부로 이동되었습니다.
-
 // --- START: Calculation Logic (Interpolation/Extrapolation) ---
+// (이 부분은 HTML 바깥에 있어도 됩니다)
 class CubicSpline {
     constructor(x, y) { this.x = [...x]; this.y = [...y]; this.n = x.length; this.calculateCoefficients(); }
     calculateCoefficients() { 
@@ -115,16 +113,17 @@ function findIdcForTarget(idcValues, inductanceValues, targetPercentage) {
 // --- END: Calculation Logic ---
 
 // --- START: Main Application Logic ---
+// 모든 코드를 DOMContentLoaded 이벤트 리스너로 감싸서 HTML 로드 후 스크립트가 실행되도록 합니다.
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- [수정됨] START: Theme Toggle Logic ---
-    // 오류 방지를 위해 DOMContentLoaded 이벤트 리스너 내부로 코드를 이동시켰습니다.
+    // --- START: Theme Toggle Logic ---
+    // (오류 수정을 위해 이곳으로 이동)
     document.getElementById('themeToggle').addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', newTheme);
     });
-    // --- [수정됨] END: Theme Toggle Logic ---
+    // --- END: Theme Toggle Logic ---
 
 
     // [수정됨] parseRawData 함수: Gap(mm) 데이터를 읽도록 수정
@@ -269,19 +268,32 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let rawSeriesData = [];
 
-    document.getElementById('processBtn').addEventListener('click', () => {
-        const rawText = document.getElementById('rawInput').value;
-        if (!rawText.trim()) { alert('Please paste raw data first.'); return; }
-        const parsedSeries = parseRawData(rawText);
-        if(parsedSeries.length === 0) { alert('Could not parse any valid data. Please check the format and error messages.'); return; }
-        rawSeriesData = parsedSeries;
-        const finalData = calculateAndBuildFinalData(parsedSeries);
-        if(finalData.length === 0) { alert('Data was parsed, but calculations failed for all entries. Check if Idc=0 data is present.'); return; }
-        const formattedText = formatForAnalysisTool(finalData);
-        document.getElementById('dataInput').value = formattedText;
-        document.getElementById('analysisContainer').classList.remove('hidden');
-        app.updateAll();
-    });
+    // --- [수정됨] START: 'processBtn' 이벤트 리스너 오류 수정 ---
+    // 'processBtn' 요소를 찾아서 변수에 할당합니다.
+    const processButton = document.getElementById('processBtn');
+    
+    // 요소를 성공적으로 찾았는지 확인합니다.
+    if (processButton) {
+        // 요소가 존재할 경우에만 이벤트 리스너를 추가합니다.
+        processButton.addEventListener('click', () => {
+            const rawText = document.getElementById('rawInput').value;
+            if (!rawText.trim()) { alert('Please paste raw data first.'); return; }
+            const parsedSeries = parseRawData(rawText);
+            if(parsedSeries.length === 0) { alert('Could not parse any valid data. Please check the format and error messages.'); return; }
+            rawSeriesData = parsedSeries;
+            const finalData = calculateAndBuildFinalData(parsedSeries);
+            if(finalData.length === 0) { alert('Data was parsed, but calculations failed for all entries. Check if Idc=0 data is present.'); return; }
+            const formattedText = formatForAnalysisTool(finalData);
+            document.getElementById('dataInput').value = formattedText;
+            document.getElementById('analysisContainer').classList.remove('hidden');
+            app.updateAll();
+        });
+    } else {
+        // 요소를 찾지 못했을 경우, 콘솔에 에러를 기록합니다. (스크립트가 멈추지는 않습니다)
+        console.error("Error: Could not find element with ID 'processBtn'.");
+    }
+    // --- [수정됨] END: 'processBtn' 이벤트 리스너 오류 수정 ---
+
 
     const app = {
         elements: {}, 
@@ -309,30 +321,50 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         addEventListeners() { 
             const controlsToRedrawChart = ['xAxis', 'yAxis', 'centerLegFilterControls', 'outerCoreFilterControls']; 
-            controlsToRedrawChart.forEach(id => this.elements[id].addEventListener('change', () => this.updateUI())); 
-            this.elements.btnExportCSV.addEventListener('click', () => this.exportCSV()); 
-            this.elements.btnExportPNG.addEventListener('click', () => this.exportPNG()); 
-            this.elements.selectAllCenterLegs.addEventListener('click', () => { 
-                this.setAllCheckboxes(this.elements.centerLegFilterControls, true); 
-                this.updateUI(); 
-            }); 
-            this.elements.deselectAllCenterLegs.addEventListener('click', () => { 
-                this.setAllCheckboxes(this.elements.centerLegFilterControls, false); 
-                this.updateUI(); 
-            }); 
-            this.elements.selectAllOuterCores.addEventListener('click', () => { 
-                this.setAllCheckboxes(this.elements.outerCoreFilterControls, true); 
-                this.updateUI(); 
-            }); 
-            this.elements.deselectAllOuterCores.addEventListener('click', () => { 
-                this.setAllCheckboxes(this.elements.outerCoreFilterControls, false); 
-                this.updateUI(); 
-            }); 
+            // 'null'일 수 있는 요소에 이벤트 리스너를 추가하기 전에 확인
+            controlsToRedrawChart.forEach(id => {
+                if (this.elements[id]) {
+                    this.elements[id].addEventListener('change', () => this.updateUI());
+                }
+            });
+            if (this.elements.btnExportCSV) {
+                this.elements.btnExportCSV.addEventListener('click', () => this.exportCSV());
+            }
+            if (this.elements.btnExportPNG) {
+                this.elements.btnExportPNG.addEventListener('click', () => this.exportPNG());
+            }
+            if (this.elements.selectAllCenterLegs) {
+                this.elements.selectAllCenterLegs.addEventListener('click', () => { 
+                    this.setAllCheckboxes(this.elements.centerLegFilterControls, true); 
+                    this.updateUI(); 
+                });
+            }
+            if (this.elements.deselectAllCenterLegs) {
+                this.elements.deselectAllCenterLegs.addEventListener('click', () => { 
+                    this.setAllCheckboxes(this.elements.centerLegFilterControls, false); 
+                    this.updateUI(); 
+                });
+            }
+            if (this.elements.selectAllOuterCores) {
+                this.elements.selectAllOuterCores.addEventListener('click', () => { 
+                    this.setAllCheckboxes(this.elements.outerCoreFilterControls, true); 
+                    this.updateUI(); 
+                });
+            }
+            if (this.elements.deselectAllOuterCores) {
+                this.elements.deselectAllOuterCores.addEventListener('click', () => { 
+                    this.setAllCheckboxes(this.elements.outerCoreFilterControls, false); 
+                    this.updateUI(); 
+                });
+            }
         },
-        setAllCheckboxes(container, isChecked) { 
-            container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = isChecked); 
+        setAllCheckboxes(container, isChecked) {
+            if (container) {
+                container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = isChecked);
+            }
         },
         parseData() { 
+            if (!this.elements.dataInput) return []; // dataInput이 없으면 빈 배열 반환
             const lines = this.elements.dataInput.value.trim().split('\n'); 
             const result = []; 
             let currentBlock = this.createEmptyBlock(); 
@@ -382,6 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         createEmptyBlock: () => ({ centerLegCore: null, outerCoreShells: [], lValues: [], idc70Values: [], idc80Values: [], gapValues: [], nValues: [] }),
         getFilteredData() { 
+            if (!this.elements.centerLegFilterControls || !this.elements.outerCoreFilterControls) return [];
             const selectedCenterLegs = new Set(Array.from(this.elements.centerLegFilterControls.querySelectorAll('input:checked')).map(chk => chk.dataset.value)); 
             const selectedOuterShells = new Set(Array.from(this.elements.outerCoreFilterControls.querySelectorAll('input:checked')).map(chk => chk.dataset.value)); 
             if (selectedCenterLegs.size === 0 || selectedOuterShells.size === 0) return []; 
@@ -389,6 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         // rawSeries 데이터를 필터링하는 함수 추가
         getFilteredRawSeries() {
+            if (!this.elements.centerLegFilterControls || !this.elements.outerCoreFilterControls) return [];
             const selectedCenterLegs = new Set(Array.from(this.elements.centerLegFilterControls.querySelectorAll('input:checked')).map(chk => chk.dataset.value));
             const selectedOuterShells = new Set(Array.from(this.elements.outerCoreFilterControls.querySelectorAll('input:checked')).map(chk => chk.dataset.value));
             if (selectedCenterLegs.size === 0 || selectedOuterShells.size === 0) return [];
@@ -424,6 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         updateParsedDataTable() { 
             const { parsedDataTableBody, dataCount } = this.elements; 
+            if (!parsedDataTableBody || !dataCount) return; // 요소 확인
             parsedDataTableBody.innerHTML = ''; 
             dataCount.textContent = `Total of ${this.parsedData.length} data points recognized`; 
             if (this.parsedData.length === 0) { 
@@ -437,6 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
             parsedDataTableBody.innerHTML = rows; 
         },
         updateFilterControls(container, values, checkAll = false) { 
+            if (!container) return; // 컨테이너 확인
             const checkedState = new Map(); 
             container.querySelectorAll('input[type="checkbox"]').forEach(chk => { 
                 checkedState.set(chk.dataset.value, chk.checked); 
@@ -450,6 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         updateStatsTable(groupedData) { 
             const { statsTableBody } = this.elements; 
+            if (!statsTableBody) return; // 요소 확인
             statsTableBody.innerHTML = ''; 
             if (Object.keys(groupedData).length === 0) { 
                 statsTableBody.innerHTML = '<tr><td colspan="7">No data selected. Check filters.</td></tr>'; 
@@ -463,6 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         showStatus(msg, isError = false, chartType = 'main') { 
             const statusElement = chartType === 'idcInductance' ? this.elements.idcInductanceChartStatus : this.elements.chartStatus; 
+            if (!statusElement) return; // 요소 확인
             statusElement.textContent = msg; 
             statusElement.style.display = 'block'; 
             statusElement.style.background = isError ? 'rgba(200, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.7)'; 
@@ -470,6 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // [수정됨] createChart: 폰트 크기 2배 증가
         createChart() {
+            if (!this.elements.mainChart) return; // 요소 확인
             const baseData = this.getFilteredData();
             const groupedData = this.groupData(baseData, 'centerLegCore');
             const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort();
@@ -495,6 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.showStatus('Generating chart...');
 
             const { xAxis, yAxis } = this.elements;
+            if (!xAxis || !yAxis) return; // 요소 확인
 
             const getLabelText = (item) => {
                 if (!item) return '';
@@ -627,11 +667,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     // --- [수정 끝] ---
                 }
             });
-            setTimeout(() => this.elements.chartStatus.style.display = 'none', 1000);
+            setTimeout(() => { if (this.elements.chartStatus) this.elements.chartStatus.style.display = 'none'; }, 1000);
         },
 
         // [수정됨] createIdcInductanceChart: 폰트 크기 2배 증가
         createIdcInductanceChart() {
+            if (!this.elements.idcInductanceChart) return; // 요소 확인
             const filteredRawSeries = this.getFilteredRawSeries();
             const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort();
             
@@ -788,7 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // --- [수정 끝] ---
                 }
             });
-            setTimeout(() => this.elements.idcInductanceChartStatus.style.display = 'none', 1000);
+            setTimeout(() => { if (this.elements.idcInductanceChartStatus) this.elements.idcInductanceChartStatus.style.display = 'none'; }, 1000);
         },
         exportCSV() { 
             const data = this.getFilteredData(); 
@@ -819,5 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
             link.click(); 
         }
     };
+    
+    // app을 초기화합니다.
     app.init();
 });
