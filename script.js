@@ -565,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const ctx = chart.ctx;
                     ctx.save();
                     // --- [수정 시작] 폰트 크기를 1/2로 줄입니다 (40px -> 20px) ---
-                    ctx.font = '20px Inter';
+                    ctx.font = '12px Inter';
                     // --- [수정 끝] ---
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'bottom';
