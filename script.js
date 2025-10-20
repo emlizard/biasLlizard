@@ -1,4 +1,4 @@
-// --- [수정됨] START: Theme Toggle Logic ---
+// --- START: Theme Toggle Logic ---
 // HTML에서 onclick="toggleTheme()"을 사용하므로, 전역 함수로 변경합니다.
 function toggleTheme() {
     const html = document.documentElement;
@@ -18,7 +18,7 @@ function toggleTheme() {
         }
     }
 }
-// --- [수정됨] END: Theme Toggle Logic ---
+// --- END: Theme Toggle Logic ---
 
 
 // --- START: Calculation Logic (Interpolation/Extrapolation) ---
@@ -135,10 +135,8 @@ function findIdcForTarget(idcValues, inductanceValues, targetPercentage) {
 // --- END: Calculation Logic ---
 
 // --- START: Main Application Logic ---
-// 테마 로직을 제외한 나머지는 DOM이 로드된 후 실행되어야 합니다.
 document.addEventListener('DOMContentLoaded', () => {
 
-    // (parseRawData, calculateAndBuildFinalData, formatForAnalysisTool - unchanged)
     function parseRawData(text) {
         const blocks = text.trim().split(/\n\s*\n/);
         const allSeries = [];
@@ -318,7 +316,6 @@ document.addEventListener('DOMContentLoaded', () => {
             ]; 
             ids.forEach(id => this.elements[id] = document.getElementById(id)); 
         },
-        // [수정됨] addEventListeners: 'themeToggle' 관련 코드를 제거했습니다.
         addEventListeners() { 
             const controlsToRedrawChart = ['xAxis', 'yAxis', 'centerLegFilterControls', 'outerCoreFilterControls']; 
             controlsToRedrawChart.forEach(id => {
@@ -509,6 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const groupedData = this.groupData(baseData, 'centerLegCore');
             const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort();
             
+            // 축, 범례, 툴팁 폰트 크기 (이전과 동일)
             const baseFontSize = 20;
             const titleFontSize = 22;
 
@@ -566,7 +564,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 afterDraw: (chart) => {
                     const ctx = chart.ctx;
                     ctx.save();
-                    ctx.font = '40px Inter';
+                    // --- [수정 시작] 폰트 크기를 1/2로 줄입니다 (40px -> 20px) ---
+                    ctx.font = '20px Inter';
+                    // --- [수정 끝] ---
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'bottom';
 
@@ -577,7 +577,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         const x = model.x + 10;
                         const y = model.y;
                         const textLines = annotation.text;
-                        const lineHeight = 28;
+                        // --- [수정 시작] 줄 간격을 1/2로 줄입니다 (28 -> 14) ---
+                        const lineHeight = 14;
+                        // --- [수정 끝] ---
                         const textWidth = Math.max(...textLines.map(line => ctx.measureText(line).width));
                         
                         ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
@@ -719,7 +721,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 afterDraw: (chart) => {
                     const ctx = chart.ctx;
                     ctx.save();
-                    ctx.font = '40px Inter';
+                    // --- [수정 시작] 폰트 크기를 1/2로 줄입니다 (40px -> 20px) ---
+                    ctx.font = '20px Inter';
+                    // --- [수정 끝] ---
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'bottom';
 
@@ -730,7 +734,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         const x = model.x + 10;
                         const y = model.y;
                         const textLines = annotation.text;
-                        const lineHeight = 28;
+                        // --- [수정 시작] 줄 간격을 1/2로 줄입니다 (28 -> 14) ---
+                        const lineHeight = 14;
+                        // --- [수정 끝] ---
                         const textWidth = Math.max(...textLines.map(line => ctx.measureText(line).width));
                         
                         ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
