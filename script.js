@@ -11,6 +11,56 @@ function findIdcForTarget(idcValues, inductanceValues, targetPercentage) { const
 // --- END: Calculation Logic ---
 
 
+// --- START: Theme Toggle Logic (NEW) ---
+function toggleTheme() {
+    const body = document.body;
+    const themeIcon = document.getElementById('themeIcon');
+    const currentTheme = body.dataset.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    if (currentTheme === 'dark') {
+        body.dataset.theme = 'light';
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+        localStorage.setItem('theme', 'light');
+    } else {
+        body.dataset.theme = 'dark';
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+        localStorage.setItem('theme', 'dark');
+    }
+}
+
+// Set initial theme on page load
+(function () {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const themeIcon = document.getElementById('themeIcon');
+    
+    if (savedTheme) {
+        document.body.dataset.theme = savedTheme;
+        if (savedTheme === 'dark') {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    } else {
+        // If no saved theme, use system preference
+        if (prefersDark) {
+            document.body.dataset.theme = 'dark';
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            document.body.dataset.theme = 'light';
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    }
+})();
+// --- END: Theme Toggle Logic ---
+
+
 // --- START: Main Application Logic ---
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -59,26 +109,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 idcValues.push(parseFloat(parts[0]));
                 for (let j = 1; j < headers.length; j++) {
-                    // Handle empty/missing data points in the middle of a row
+                    // Handle empty/missing data points in the middle of a row
                     inductanceData[j - 1].push(parseFloat(parts[j])); // will be NaN if empty
                 }
                 tableEndIndex = i + 1;
             }
 
-            // Clean up NaN values from incomplete rows
-            inductanceData = inductanceData.map(series => {
-                const validData = [];
-                for(let i=0; i<idcValues.length; i++) {
-                    if (!isNaN(series[i])) {
-                        validData.push({ idc: idcValues[i], l: series[i] });
-                    }
-                }
-                return validData;
-            });
+            // Clean up NaN values from incomplete rows
+            inductanceData = inductanceData.map(series => {
+                const validData = [];
+                for(let i=0; i<idcValues.length; i++) {
+                    if (!isNaN(series[i])) {
+                        validData.push({ idc: idcValues[i], l: series[i] });
+                    }
+                }
+                return validData;
+            });
 
-            // Separate idc and inductance back out
-            const allIdcValues = inductanceData.map(series => series.map(d => d.idc));
-            const allInductanceValues = inductanceData.map(series => series.map(d => d.l));
+            // Separate idc and inductance back out
+            const allIdcValues = inductanceData.map(series => series.map(d => d.idc));
+            const allInductanceValues = inductanceData.map(series => series.map(d => d.l));
 
 
             // Look for L_initial row
@@ -100,13 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             for (let i = 1; i < headers.length; i++) {
-                const currentIdc = allIdcValues[i-1] || [];
-                const currentL = allInductanceValues[i-1] || [];
+                const currentIdc = allIdcValues[i-1] || [];
+                const currentL = allInductanceValues[i-1] || [];
 
-                if(currentIdc.length < 2) {
-                    errors.push(`Block ${blockIndex + 1} (${centerLegName}), Col ${headers[i]}: Not enough data rows.`);
-                    continue; // Skip this series
-                }
+                if(currentIdc.length < 2) {
+                    errors.push(`Block ${blockIndex + 1} (${centerLegName}), Col ${headers[i]}: Not enough data rows.`);
+                    continue; // Skip this series
+                }
 
                 allSeries.push({
                     centerLegCoreName: centerLegName,
@@ -184,39 +234,39 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('processBtn').addEventListener('click', () => {
         const rawText = document.getElementById('rawInput').value;
         if (!rawText.trim()) { alert('Please paste raw data first.'); return; }
-        
-        // Note: parsedSeries contains the raw L-Idc curves
+        
+        // Note: parsedSeries contains the raw L-Idc curves
         const parsedSeries = parseRawData(rawText);
         if(parsedSeries.length === 0) { alert('Could not parse any valid data. Please check the format and error messages.'); return; }
-        
-        // Note: finalData also contains the raw L-Idc curves
-        const finalData = calculateAndBuildFinalData(parsedSeries);
+        
+        // Note: finalData also contains the raw L-Idc curves
+        const finalData = calculateAndBuildFinalData(parsedSeries);
         if(finalData.length === 0) { alert('Data was parsed, but calculations failed for all entries. Check if Idc=0 data is present.'); return; }
-        
-        const formattedText = formatForAnalysisTool(finalData);
+        
+        const formattedText = formatForAnalysisTool(finalData);
         document.getElementById('dataInput').value = formattedText;
         document.getElementById('analysisContainer').classList.remove('hidden');
-        
-        // app.updateAll() parses the intermediate text, which LOSES the raw L-Idc curves
-        app.updateAll();
+        
+        // app.updateAll() parses the intermediate text, which LOSES the raw L-Idc curves
+        app.updateAll();
 
         // --- NEW: Merge raw L-Idc curves back into the app's parsed data ---
-        // This is necessary because app.parseData() only reads the simplified summary
+        // This is necessary because app.parseData() only reads the simplified summary
         app.parsedData.forEach(dataPoint => {
-            const matchingRawSeries = finalData.find(raw => 
+            const matchingRawSeries = finalData.find(raw => 
                 raw.centerLegCore === dataPoint.centerLegCore &&
                 raw.outerCoreShell === dataPoint.outerCoreShell &&
-                Math.abs(raw.L_initial - dataPoint.L_initial) < 0.01 // Add a check for robustness
+                Math.abs(raw.L_initial - dataPoint.L_initial) < 0.01 // Add a check for robustness
             );
             if (matchingRawSeries) {
                 dataPoint.rawIdc = matchingRawSeries.rawIdc;
                 dataPoint.rawInductance = matchingRawSeries.rawInductance;
             }
         });
-        // --- END NEW MERGE STEP ---
+        // --- END NEW MERGE STEP ---
 
-        // Re-draw the chart with the newly merged raw data
-        app.createChart();
+        // Re-draw the chart with the newly merged raw data
+        app.createChart();
     });
 
     // --- END: Integration Logic ---
@@ -227,109 +277,109 @@ document.addEventListener('DOMContentLoaded', () => {
         elements: {}, chartInstance: null, parsedData: [],
         defaultColors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
         pointStyles: ['circle', 'rect', 'triangle', 'rectRot', 'star', 'cross', 'rectRounded'],
-        init() { 
-            this.cacheElements(); 
-            this.addEventListeners(); 
-            this.activeLineSeries = new Map(); // NEW: To track L-Idc lines
-            this.chartAnnotations = []; // Moved from createChart
-        },
+        init() { 
+            this.cacheElements(); 
+            this.addEventListeners(); 
+            this.activeLineSeries = new Map(); // NEW: To track L-Idc lines
+            this.chartAnnotations = []; // Moved from createChart
+        },
         cacheElements() { const ids = [ 'dataInput', 'xAxis', 'yAxis', 'centerLegFilterControls', 'outerCoreFilterControls', 'mainChart', 'statsTableBody', 'dataCount', 'chartStatus', 'btnExportCSV', 'btnExportPNG', 'parsedDataTableBody', 'selectAllCenterLegs', 'deselectAllCenterLegs', 'selectAllOuterCores', 'deselectAllOuterCores' ]; ids.forEach(id => this.elements[id] = document.getElementById(id)); },
         addEventListeners() { const controlsToRedrawChart = ['xAxis', 'yAxis', 'centerLegFilterControls', 'outerCoreFilterControls']; controlsToRedrawChart.forEach(id => this.elements[id].addEventListener('change', () => this.updateUI())); this.elements.btnExportCSV.addEventListener('click', () => this.exportCSV()); this.elements.btnExportPNG.addEventListener('click', () => this.exportPNG()); this.elements.selectAllCenterLegs.addEventListener('click', () => { this.setAllCheckboxes(this.elements.centerLegFilterControls, true); this.updateUI(); }); this.elements.deselectAllCenterLegs.addEventListener('click', () => { this.setAllCheckboxes(this.elements.centerLegFilterControls, false); this.updateUI(); }); this.elements.selectAllOuterCores.addEventListener('click', () => { this.setAllCheckboxes(this.elements.outerCoreFilterControls, true); this.updateUI(); }); this.elements.deselectAllOuterCores.addEventListener('click', () => { this.setAllCheckboxes(this.elements.outerCoreFilterControls, false); this.updateUI(); }); },
         setAllCheckboxes(container, isChecked) { container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = isChecked); },
-        parseData() { 
-            const lines = this.elements.dataInput.value.trim().split('\n'); 
-            const result = []; 
-            let currentBlock = this.createEmptyBlock(); 
-            const flushBlock = () => { 
-                if (!currentBlock.centerLegCore) return; 
-                const { centerLegCore, outerCoreShells, lValues, idc70Values, idc80Values, gapValues, nValues } = currentBlock; 
-                const n = Math.min(outerCoreShells.length, lValues.length, idc70Values.length, idc80Values.length, gapValues.length, nValues.length); 
-                for (let i = 0; i < n; i++) { 
-                    const L = lValues[i], I70 = idc70Values[i], I80 = idc80Values[i], G = gapValues[i], N = nValues[i]; 
-                    if ([L, I70, I80, G, N].some(v => v === undefined || isNaN(v))) continue; 
-                    result.push({ 
-                        centerLegCore: centerLegCore, 
-                        outerCoreShell: String(outerCoreShells[i]), 
-                        L_initial: L, 
-                        Idc_70: I70, 
-                        Idc_80: I80, 
-                        Gap: G, 
-                        N: N, 
-                        // FoM REMOVED
-                    }); 
-                } 
-                currentBlock = this.createEmptyBlock(); 
-            }; 
-            for (const line of lines) { 
-                const trimmedLine = line.trim(); 
-                if (!trimmedLine) continue; 
-                const parts = trimmedLine.split(/\s+/); 
-                const label = parts[0].toLowerCase(); 
-                if (label.startsWith('clc_')) { 
-                    flushBlock(); currentBlock.centerLegCore = parts[0]; 
-                    currentBlock.outerCoreShells = parts.slice(1); 
-                } else if (label.startsWith('l_initial')) { 
-                    currentBlock.lValues = parts.slice(1).map(parseFloat); 
-                } else if (label.startsWith('idc_70%')) { 
-                    currentBlock.idc70Values = parts.slice(1).map(parseFloat); 
-                } else if (label.startsWith('idc_80%')) { 
-                    currentBlock.idc80Values = parts.slice(1).map(parseFloat); 
-                } else if (label.startsWith('gap(mm)')) { 
-                    currentBlock.gapValues = parts.slice(1).map(parseFloat); 
-                } else if (label.startsWith('n')) { 
-                    currentBlock.nValues = parts.slice(1).map(parseFloat); 
-                } 
-            } 
-            flushBlock(); 
-            return result; 
-        },
+        parseData() { 
+            const lines = this.elements.dataInput.value.trim().split('\n'); 
+            const result = []; 
+            let currentBlock = this.createEmptyBlock(); 
+            const flushBlock = () => { 
+                if (!currentBlock.centerLegCore) return; 
+                const { centerLegCore, outerCoreShells, lValues, idc70Values, idc80Values, gapValues, nValues } = currentBlock; 
+                const n = Math.min(outerCoreShells.length, lValues.length, idc70Values.length, idc80Values.length, gapValues.length, nValues.length); 
+                for (let i = 0; i < n; i++) { 
+                    const L = lValues[i], I70 = idc70Values[i], I80 = idc80Values[i], G = gapValues[i], N = nValues[i]; 
+                    if ([L, I70, I80, G, N].some(v => v === undefined || isNaN(v))) continue; 
+                    result.push({ 
+                        centerLegCore: centerLegCore, 
+                        outerCoreShell: String(outerCoreShells[i]), 
+                        L_initial: L, 
+                        Idc_70: I70, 
+                        Idc_80: I80, 
+                        Gap: G, 
+                        N: N, 
+                        // FoM REMOVED
+                    }); 
+                } 
+                currentBlock = this.createEmptyBlock();a 
+            }; 
+            for (const line of lines) { 
+                const trimmedLine = line.trim(); 
+                if (!trimmedLine) continue;s 
+                const parts = trimmedLine.split(/\s+/); 
+                const label = parts[0].toLowerCase(); 
+                if (label.startsWith('clc_')) { 
+                    flushBlock(); currentBlock.centerLegCore = parts[0]; 
+                    currentBlock.outerCoreShells = parts.slice(1); 
+                } else if (label.startsWith('l_initial')) { 
+                    currentBlock.lValues = parts.slice(1).map(parseFloat); 
+                } else if (label.startsWith('idc_70%')) { 
+                    currentBlock.idc70Values = parts.slice(1).map(parseFloat);js
+                } else if (label.startsWith('idc_80%')) { 
+                    currentBlock.idc80Values = parts.slice(1).map(parseFloat); 
+                } else if (label.startsWith('gap(mm)')) { 
+                    currentBlock.gapValues = parts.slice(1).map(parseFloat);s 
+                } else if (label.startsWith('n')) { 
+                    currentBlock.nValues = parts.slice(1).map(parseFloat);s 
+                } 
+            } 
+            flushBlock(); 
+            return result; 
+        },
         createEmptyBlock: () => ({ centerLegCore: null, outerCoreShells: [], lValues: [], idc70Values: [], idc80Values: [], gapValues: [], nValues: [] }),
         getFilteredData() { const selectedCenterLegs = new Set(Array.from(this.elements.centerLegFilterControls.querySelectorAll('input:checked')).map(chk => chk.dataset.value)); const selectedOuterShells = new Set(Array.from(this.elements.outerCoreFilterControls.querySelectorAll('input:checked')).map(chk => chk.dataset.value)); if (selectedCenterLegs.size === 0 || selectedOuterShells.size === 0) return []; return this.parsedData.filter(d => selectedCenterLegs.has(d.centerLegCore) && selectedOuterShells.has(d.outerCoreShell)); },
         groupData: (data, groupBy) => data.reduce((groups, item) => { const key = item[groupBy]; if (!groups[key]) groups[key] = []; groups[key].push(item); return groups; }, {}),
-        updateAll() { 
-            this.parsedData = this.parseData(); 
-            // Clear dynamic series when data is fully re-parsed
-            this.activeLineSeries.clear();
-            this.chartAnnotations = [];
+        updateAll() { 
+            this.parsedData = this.parseData(); 
+            // Clear dynamic series when data is fully re-parsed
+            this.activeLineSeries.clear();
+            this.chartAnnotations = [];
 
-            const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort(); 
-            const allOuterShells = [...new Set(this.parsedData.map(d => d.outerCoreShell))].sort((a, b) => a - b); 
-            this.updateFilterControls(this.elements.centerLegFilterControls, allCenterLegs, true); 
-            this.updateFilterControls(this.elements.outerCoreFilterControls, allOuterShells, true); 
-            this.updateParsedDataTable(); 
-            this.updateUI(); 
-        },
+            const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort();s 
+            const allOuterShells = [...new Set(this.parsedData.map(d => d.outerCoreShell))].sort((a, b) => a - b); 
+            this.updateFilterControls(this.elements.centerLegFilterControls, allCenterLegs, true); 
+            this.updateFilterControls(this.elements.outerCoreFilterControls, allOuterShells, true);s 
+            this.updateParsedDataTable(); 
+            this.updateUI(); 
+        },
         updateUI() { const baseData = this.getFilteredData(); const groupedData = this.groupData(baseData, 'centerLegCore'); this.updateStatsTable(groupedData); this.createChart(); },
-        updateParsedDataTable() { 
-            const { parsedDataTableBody, dataCount } = this.elements; 
-            parsedDataTableBody.innerHTML = ''; 
-            dataCount.textContent = `Total of ${this.parsedData.length} data points recognized`; 
-            if (this.parsedData.length === 0) { 
-                parsedDataTableBody.innerHTML = `<tr><td colspan="7">No data recognized.</td></tr>`; // Colspan updated to 7
-                return; 
-            } 
-            let rows = ''; 
-            this.parsedData.forEach(d => { 
-                // REMOVED FoM
-                rows += `<tr><td>${d.centerLegCore}</td><td>${d.outerCoreShell}</td><td>${d.L_initial.toFixed(2)}</td><td>${d.Idc_70.toFixed(2)}</td><td>${d.Idc_80.toFixed(2)}</td><td>${d.Gap.toFixed(2)}</td><td>${d.N}</td></tr>`; 
-            }); 
-            parsedDataTableBody.innerHTML = rows; 
-        },
-        updateFilterControls(container, values, checkAll = false) { const checkedState = new Map(); container.querySelectorAll('input[type="checkbox"]').forEach(chk => { checkedState.set(chk.dataset.value, chk.checked); }); container.innerHTML = ''; if (!values || values.length === 0) return; values.forEach(value => { const isChecked = checkAll ? 'checked' : (checkedState.has(value) ? (checkedState.get(value) ? 'checked' : '') : 'checked'); container.innerHTML += `<div class.filter-item"><input type="checkbox" id="chk-${container.id}-${value}" data-value="${value}" ${isChecked}><label for="chk-${container.id}-${value}">${value}</label></div>`; }); },
-        updateStatsTable(groupedData) { 
-            const { statsTableBody } = this.elements; 
-            statsTableBody.innerHTML = ''; 
-            if (Object.keys(groupedData).length === 0) { 
-                statsTableBody.innerHTML = '<tr><td colspan="6">No data selected. Check filters.</td></tr>'; // Colspan updated to 6
-                return; 
-            } 
-            for (const group in groupedData) { 
-                const items = groupedData[group]; 
-                const calcStats = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; 
-                // REMOVED FoM
-                statsTableBody.innerHTML += `<tr><td><strong>${group}</strong></td><td>${items.length}</td><td>${calcStats(items.map(d => d.L_initial)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Idc_70)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Idc_80)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Gap)).toFixed(2)}</td></tr>`; 
-            } 
-        },
+      s   updateParsedDataTable() { 
+            const { parsedDataTableBody, dataCount } = this.elements; 
+            parsedDataTableBody.innerHTML = ''; 
+            dataCount.textContent = `Total of ${this.parsedData.length} data points recognized`; 
+            if (this.parsedData.length === 0) { 
+                parsedDataTableBody.innerHTML = `<tr><td colspan="7">No data recognized.</td></tr>`; // Colspan updated to 7
+                return; 
+            } 
+            let rows = ''; 
+            this.parsedData.forEach(d => { 
+                // REMOVED FoM
+                rows += `<tr><td>${d.centerLegCore}</td><td>${d.outerCoreShell}</td><td>${d.L_initial.toFixed(2)}</td><td>${d.Idc_70.toFixed(2)}</td><td>${d.Idc_80.toFixed(2)}</td><td>${d.Gap.toFixed(2)}</td><td>${d.N}</td></tr>`;s 
+            }); 
+            parsedDataTableBody.innerHTML = rows; 
+        },
+        updateFilterControls(container, values, checkAll = false) { const checkedState = new Map(); container.querySelectorAll('input[type="checkbox"]').forEach(chk => { checkedState.set(chk.dataset.value, chk.checked); }); container.innerHTML = ''; if (!values || values.length === 0) return; values.forEach(value => { const isChecked = checkAll ? 'checked' : (checkedState.has(value) ? (checkedState.get(value) ? 'checked' : '') : 'checked'); container.innerHTML += `<div class="filter-item"><input type="checkbox" id="chk-${container.id}-${value}" data-value="${value}" ${isChecked}><label for="chk-${container.id}-${value}">${value}</label></div>`; }); },
+        updateStatsTable(groupedData) { 
+            const { statsTableBody } = this.elements; 
+            statsTableBody.innerHTML = ''; 
+            if (Object.keys(groupedData).length === 0) {s 
+                statsTableBody.innerHTML = '<tr><td colspan="6">No data selected. Check filters.</td></tr>'; // Colspan updated to 6
+                return; 
+            } 
+            for (const group in groupedData) { 
+                const items = groupedData[group]; 
+                const calcStats = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; 
+                // REMOVED FoM
+                statsTableBody.innerHTML += `<tr><td><strong>${group}</strong></td><td>${items.length}</td><td>${calcStats(items.map(d => d.L_initial)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Idc_70)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Idc_80)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Gap)).toFixed(2)}</td></tr>`; 
+            } 
+        },
         showStatus(msg, isError = false) { const { chartStatus } = this.elements; chartStatus.textContent = msg; chartStatus.style.display = 'block'; chartStatus.style.background = isError ? 'rgba(200, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.7)'; },
         
         // ==================================================================
@@ -364,13 +414,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     `${item.centerLegCore} / Shell ${item.outerCoreShell}`,
                     `L=${item.L_initial.toFixed(1)} μH`,
                     `Idc_70=${item.Idc_70.toFixed(1)} A, Idc_80=${item.Idc_80.toFixed(1)} A`,
-                    `Gap=${item.Gap.toFixed(1)} mm, N=${item.N}`
+s                 `Gap=${item.Gap.toFixed(1)} mm, N=${item.N}`
                     // FoM REMOVED
                 ];
             };
 
             const datasets = Object.keys(groupedData).map(group => {
-                const coreIndex = allCenterLegs.indexOf(group);
+s             const coreIndex = allCenterLegs.indexOf(group);
                 const color = this.defaultColors[coreIndex % this.defaultColors.length];
                 const pointStyle = this.pointStyles[coreIndex % this.pointStyles.length];
                 const data = groupedData[group].map(item => ({
@@ -379,7 +429,71 @@ document.addEventListener('DOMContentLoaded', () => {
                     raw: item // 'raw' now contains rawIdc and rawInductance
                 }));
                 return {
-                    label: group,
+    source_quote: "filter-item"><input type="checkbox" id="chk-${container.id}-${value}" data-value="${value}" ${isChecked}><label for="chk-${container.id}-${value}">${value}</label></div>`; }); },
+        updateStatsTable(groupedData) { 
+            const { statsTableBody } = this.elements; 
+            statsTableBody.innerHTML = ''; 
+            if (Object.keys(groupedData).length === 0) {s 
+                statsTableBody.innerHTML = '<tr><td colspan="6">No data selected. Check filters.</td></tr>'; // Colspan updated to 6
+                return; 
+            } 
+            for (const group in groupedData) { 
+                const items = groupedData[group]; 
+                const calcStats = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; 
+                // REMOVED FoM
+                statsTableBody.innerHTML += `<tr><td><strong>${group}</strong></td><td>${items.length}</td><td>${calcStats(items.map(d => d.L_initial)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Idc_70)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Idc_80)).toFixed(2)}</td><td>${calcStats(items.map(d => d.Gap)).toFixed(2)}</td></tr>`; 
+            } 
+        },
+        showStatus(msg, isError = false) { const { chartStatus } = this.elements; chartStatus.textContent = msg; chartStatus.style.display = 'block'; chartStatus.style.background = isError ? 'rgba(200, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.7)'; },
+        
+        // ==================================================================
+        // ===== ✨ MODIFIED SECTION START (L-Idc Plotting) ✨ =====
+        // ==================================================================
+        createChart() {
+            const baseData = this.getFilteredData();
+            const groupedData = this.groupData(baseData, 'centerLegCore');
+            const allCenterLegs = [...new Set(this.parsedData.map(d => d.centerLegCore))].sort();
+            
+            if (this.chartInstance) {
+                this.chartInstance.destroy();
+            }
+
+            // Note: this.chartAnnotations is now initialized in app.init()
+
+            const ctx = this.elements.mainChart.getContext('2d');
+            ctx.clearRect(0, 0, this.elements.mainChart.width, this.elements.mainChart.height);
+            
+            if (!baseData.length) {
+                this.showStatus('No data to display.', true);
+                return;
+            }
+            this.showStatus('Generating chart...');
+
+            const { xAxis, yAxis } = this.elements;
+
+            // 툴팁과 클릭 레이블에 사용될 텍스트를 생성하는 헬퍼 함수입니다. (FoM REMOVED)
+            const getLabelText = (item) => {
+                if (!item) return '';
+                return [
+                    `${item.centerLegCore} / Shell ${item.outerCoreShell}`,
+                    `L=${item.L_initial.toFixed(1)} μH`,
+                    `Idc_70=${item.Idc_70.toFixed(1)} A, Idc_80=${item.Idc_80.toFixed(1)} A`,
+s                 `Gap=${item.Gap.toFixed(1)} mm, N=${item.N}`
+                    // FoM REMOVED
+                ];
+            };
+
+            const datasets = Object.keys(groupedData).map(group => {
+s             const coreIndex = allCenterLegs.indexOf(group);
+                const color = this.defaultColors[coreIndex % this.defaultColors.length];
+                const pointStyle = this.pointStyles[coreIndex % this.pointStyles.length];
+                const data = groupedData[group].map(item => ({
+                    x: item[xAxis.value],
+                    y: item[yAxis.value],
+                    raw: item // 'raw' now contains rawIdc and rawInductance
+                }));
+                return {
+                        label: group,
                     data,
                     backgroundColor: color,
                     borderColor: color,
@@ -389,36 +503,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             });
 
-            // NEW: Add any active L-Idc line series back to the datasets
-            this.activeLineSeries.forEach(series => {
-                datasets.push(series);
-            });
+            // NEW: Add any active L-Idc line series back to the datasets
+            this.activeLineSeries.forEach(series => {
+                datasets.push(series);
+            });
 
             // --- NEW: 클릭된 레이블을 그리기 위한 커스텀 플러그인 ---
             const annotationPlugin = {
                 id: 'clickAnnotations',
                 afterDraw: (chart) => {
                     const ctx = chart.ctx;
-                    ctx.save();
+s                 ctx.save();
                     ctx.font = '12px Arial';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'bottom';
 
-                    this.chartAnnotations.forEach(annotation => {
+s                 this.chartAnnotations.forEach(annotation => {
                         const model = chart.getDatasetMeta(annotation.datasetIndex)?.data[annotation.index];
                         if (!model) return;
 
                         const x = model.x + 10;
                         const y = model.y;
                         const textLines = annotation.text;
-                        const lineHeight = 14;
+s                     const lineHeight = 14;
                         const textWidth = Math.max(...textLines.map(line => ctx.measureText(line).width));
                         
                         ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
                         ctx.fillRect(x - 3, y - (lineHeight * textLines.length) - 3, textWidth + 6, (lineHeight * textLines.length) + 6);
                         ctx.strokeStyle = '#999';
                         ctx.lineWidth = 1;
-                        ctx.strokeRect(x - 3, y - (lineHeight * textLines.length) - 3, textWidth + 6, (lineHeight * textLines.length) + 6);
+s                     ctx.strokeRect(x - 3, y - (lineHeight * textLines.length) - 3, textWidth + 6, (lineHeight * textLines.length) + 6);
 
                         ctx.fillStyle = '#333';
                         textLines.forEach((line, i) => {
@@ -426,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     });
                     ctx.restore();
-                }
+s             }
             };
 
             this.chartInstance = new Chart(this.elements.mainChart, {
@@ -440,11 +554,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     onClick: (event, elements) => {
                         if (elements.length > 0) {
                             const { datasetIndex, index } = elements[0];
-                            // Avoid clicking on the line plot points
-                            if (this.chartInstance.data.datasets[datasetIndex].type === 'line') return;
+                            // Avoid clicking on the line plot points
+                            if (this.chartInstance.data.datasets[datasetIndex].type === 'line') return;
 
                             const item = this.chartInstance.data.datasets[datasetIndex].data[index].raw;
-                            const seriesKey = `${datasetIndex}-${index}`;
+                            const seriesKey = `${datasetIndex}-${index}`;
 
                             const existingAnnotationIndex = this.chartAnnotations.findIndex(
                                 a => a.datasetIndex === datasetIndex && a.index === index
@@ -453,55 +567,55 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (existingAnnotationIndex > -1) {
                                 // --- REMOVE Annotation and Line ---
                                 this.chartAnnotations.splice(existingAnnotationIndex, 1);
-                                
-                                if (this.activeLineSeries.has(seriesKey)) {
-                                    const lineLabelToRemove = this.activeLineSeries.get(seriesKey).label;
-                                    const datasetIndexToRemove = this.chartInstance.data.datasets.findIndex(ds => ds.label === lineLabelToRemove);
-                                    if (datasetIndexToRemove > -1) {
-                                        this.chartInstance.data.datasets.splice(datasetIndexToRemove, 1);
-                                    }
-                                    this.activeLineSeries.delete(seriesKey);
-                                }
+                                
+                                if (this.activeLineSeries.has(seriesKey)) {
+                                    const lineLabelToRemove = this.activeLineSeries.get(seriesKey).label;
+                                    const datasetIndexToRemove = this.chartInstance.data.datasets.findIndex(ds => ds.label === lineLabelToRemove);
+                                    if (datasetIndexToRemove > -1) {
+                                        this.chartInstance.data.datasets.splice(datasetIndexToRemove, 1);
+                                    }
+                                    this.activeLineSeries.delete(seriesKey);
+                                }
 
                             } else {
                                 // --- ADD Annotation and Line ---
                                 this.chartAnnotations.push({
                                     datasetIndex,
-                                    index,
+s                                 index,
                                     text: getLabelText(item)
                                 });
 
-                                if (item.rawIdc && item.rawInductance && !this.activeLineSeries.has(seriesKey)) {
-                                    const lineLabel = `L-Idc: ${item.outerCoreShell}`;
-                                    const lineData = item.rawIdc.map((idc, i) => ({ x: idc, y: item.rawInductance[i] }));
-                                    const scatterColor = this.chartInstance.data.datasets[datasetIndex].backgroundColor;
+                                if (item.rawIdc && item.rawInductance && !this.activeLineSeries.has(seriesKey)) {
+                                    const lineLabel = `L-Idc: ${item.outerCoreShell}`;
+                                    const lineData = item.rawIdc.map((idc, i) => ({ x: idc, y: item.rawInductance[i] }));
+                                    const scatterColor = this.chartInstance.data.datasets[datasetIndex].backgroundColor;
 
-                                    const newLineSeries = {
-                                        label: lineLabel,
-                                        data: lineData,
-                                        type: 'line',
-                                        borderColor: scatterColor,
-                                        borderWidth: 2,
-                                        borderDash: [5, 5],
-                                        fill: false,
-                                        pointRadius: 2,
-                                        tension: 0.1,
-                                        xAxisID: 'xLidc', // Bind to new X-axis
-                                        yAxisID: 'yLidc'  // Bind to new Y-axis
-                                    };
+                                    const newLineSeries = {
+                                        label: lineLabel,
+                                        data: lineData,
+                                        type: 'line',
+s                                     borderColor: scatterColor,
+                                        borderWidth: 2,
+                                        borderDash: [5, 5],
+                                        fill: false,
+                                        pointRadius: 2,
+s                                     tension: 0.1,
+                                        xAxisID: 'xLidc', // Bind to new X-axis
+s                                     yAxisID: 'yLidc'  // Bind to new Y-axis
+                                    };
 
-                                    this.activeLineSeries.set(seriesKey, newLineSeries);
-                                    this.chartInstance.data.datasets.push(newLineSeries);
-                                }
+                                    this.activeLineSeries.set(seriesKey, newLineSeries);
+s                                 this.chartInstance.data.datasets.push(newLineSeries);
+                                }
                             }
 
-                            // Update axis visibility
-                            const showLidcAxes = this.activeLineSeries.size > 0;
-                            this.chartInstance.options.scales.xLidc.display = showLidcAxes;
-                            // ===================================
-                            // ===== ✨ TYPO FIXED HERE ✨ =====
-                            // ===================================
-                            this.chartInstance.options.scales.yLidc.display = showLidcAxes; 
+                            // Update axis visibility
+                            const showLidcAxes = this.activeLineSeries.size > 0;
+                            this.chartInstance.options.scales.xLidc.display = showLidcAxes;
+                            // ===================================
+                            // ===== ✨ TYPO FIXED HERE ✨ =====
+                            // ===================================
+                            this.chartInstance.options.scales.yLidc.display = showLidcAxes;s 
 
                             this.chartInstance.update('none');
                         }
@@ -509,77 +623,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     plugins: {
                         legend: {
                             position: 'top',
-                            labels: { usePointStyle: true, padding: 20 }
+s                         labels: { usePointStyle: true, padding: 20 }
                         },
-              _           tooltip: {
+              _           tooltip: {
                             callbacks: {
                                 label: (context) => {
-                                // Don't show complex tooltip for the L-Idc line itself
-                                if (context.dataset.type === 'line') {
-                                    return `${context.dataset.label}: (Idc: ${context.parsed.x}, L: ${context.parsed.y.toFixed(1)})`;
-                                }
-                                    const item = context.raw?.raw;
-                                    return getLabelText(item);
+                                // Don't show complex tooltip for the L-Idc line itself
+                                if (context.dataset.type === 'line') {
+                                    return `${context.dataset.label}: (Idc: ${context.parsed.x}, L: ${context.parsed.y.toFixed(1)})`;
                                 }
-                            }
-s                     }
-                    },
-                    // --- NEW: Added secondary axes for L-Idc lines ---
-                    scales: {
-                        x: { // Main scatter X-axis (Bottom)
-                            type: 'linear',
-                            position: 'bottom',
-                            title: { display: true, text: xAxis.options[xAxis.selectedIndex].text } 
-                        },
-                        y: { // Main scatter Y-axis (Left)
-                            type: 'linear',
-                            position: 'left',
-                            title: { display: true, text: yAxis.options[yAxis.selectedIndex].text } 
-                        },
-                        xLidc: { // Secondary L-Idc X-axis (Top)
-                            type: 'linear',
-                            position: 'top',
-                            display: this.activeLineSeries.size > 0, // Show only if lines are active
-                            title: { display: true, text: 'Idc (A)' },
-                            grid: { drawOnChartArea: false } // No grid lines
-                        },
-                        yLidc: { // Secondary L-Idc Y-axis (Right)
-                            type: 'linear',
-                             position: 'right',
-                            display: this.activeLineSeries.size > 0, // Show only if lines are active
-                            title: { display: true, text: 'Inductance (uH)' },
-                            grid: { drawOnChartArea: false } // No grid lines
-                        }
-                    }
-                }
-            });
-            setTimeout(() => this.elements.chartStatus.style.display = 'none', 1000);
-        },
-        // ==================================================================
-        // ===== ✨ MODIFIED SECTION END ✨ =====
-        // ==================================================================
-        exportCSV() { 
-            const data = this.getFilteredData(); 
-            if (data.length === 0) { 
-                alert('No data selected to export.'); 
-                return; 
-            } 
-            // REMOVED FoM
-            const headers = "CenterLegCore,OuterCoreShell,L_initial(uH),Idc_70%(A),Idc_80%(A),Gap(mm),N"; 
-            // REMOVED FoM
-            const rows = data.map(d => `${d.centerLegCore},${d.outerCoreShell},${d.L_initial},${d.Idc_70},${d.Idc_80},${d.Gap},${d.N}`); 
-            const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n"); 
-            const encodedUri = encodeURI(csvContent); 
-            const link = document.createElement("a"); 
-            link.setAttribute("href", encodedUri); 
-            link.setAttribute("download", "inductance_data_export.csv"); 
-            document.body.appendChild(link); 
-            link.click(); 
-            document.body.removeChild(link); 
-        },
-        exportPNG() { if (!this.chartInstance || !this.getFilteredData().length) { alert('No chart available to export.'); return; } const url = this.chartInstance.toBase64Image(); const link = document.createElement('a'); link.download = 'inductance_chart.png'; link.href = url; link.click(); }
-section: 1
-    };
-    app.init();
-    // --- END: Analysis App Logic ---
-});
+                                    const item = context.raw?.raw;
+          _in: 0.1em;
+}
+
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    background: var(--card-dark);
+    color: var(--text-primary-dark);
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-medium);
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+}
+
+.tooltip-line {
+    display: block;
+    white-space: nowrap;
+}
+
+/* === END: Added/Modified Styles for UI Compatibility === */
